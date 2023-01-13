@@ -1,6 +1,8 @@
 application(gamingService, [edgeGamingVF, cloudGamingVF]).
-vnf(edgeGamingVF, 4).
-vnf(cloudGamingVF, 10).
+% vnf(Id, HWReqs, ProcessingTime)
+vnf(edgeGamingVF, 4, 15).
+vnf(cloudGamingVF, 10, 8).
+vnf(encVF, 1, 10).
 
 % the beast that generates the intent:
 % intent(Stakeholder, IntentId, OldTarget, NewTarget) :-
@@ -22,3 +24,4 @@ propertyExpectation(privacy, From, To, T1, T2) :-
     condition(T1, From, To, privacy, high, _, _, T2).
 
 % TODO: an "expert" will write condition/8 predicates to express when the associated propertyExpectation/5 or deliveryExpectation/3 is satisfied
+% TODO: define a priority among propertyExpectation "types"
