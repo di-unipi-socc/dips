@@ -1,3 +1,5 @@
+:-['data.pl']. % load data
+
 % testing predicate
 start(Tf) :- intent(gameAppOp, gamingServiceIntent, (chainToPlace, node42, [on(cloudGamingVF, coolCloud)]), Tf).
 
