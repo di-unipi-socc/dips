@@ -14,6 +14,8 @@ start(Tf) :- intent(gameAppOp, gamingServiceIntent, (chainToPlace, node42, [on(c
 		intent(Stakeholder, IntentId, OldTarget, NewTarget)
 		Ti = (chainToPlace, From, PartialPlacement)
 		Tf = (placedVNFchain, FinalPlacedChain, FinalPlacement)
+
+	intent/4 and propertyExpectation/5 predicates can be automatically generated starting from a standard format (e.g. RDF).
 */
 intent(gameAppOp, gamingServiceIntent, Ti, Tf) :-  
     deliveryExpectation(gamingService, Ti, T1), % determines a placement for the gamingService chain
@@ -27,6 +29,8 @@ propertyExpectation(bandwidth, From, To, T1, T2) :-
     condition(T1, From, To, bandwidth, larger, 30, megabps, T2).
 propertyExpectation(privacy, From, To, T1, T2) :-
     condition(T1, From, To, privacy, edge, _, _, T2).    
+
+% deliveryExpectation/3 and condition/8 predicates are written as Prolog rules by an expert.
 
 % deliveryExpectation/3 checks if the chain can be placed on the network
 deliveryExpectation(App, (chainToPlace, _, PartialPlacement), (placedVNFchain, VNFChain, FinalPlacement)) :-
