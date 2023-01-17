@@ -3,20 +3,28 @@
 % testing predicate
 start(Tf) :- intent(gameAppOp, gamingServiceIntent, (chainToPlace, node42, [on(cloudGamingVF, coolCloud)]), Tf).
 
-/* intent(Stakeholder, IntentId, OldTarget, NewTarget)
-    Ti = (chainToPlace, From, PartialPlacement)
-    Tf = (placedVNFchain, FinalPlacedChain, FinalPlacement)
+/* We define intent/4 predicates via sets of deliveryExpectation/3 and propertyExpectation/5 predicates.
+   Each expectation has an initial and a final target, and it is triggered by (one or more) condition predicates.
+
+   For the moment being, we consider two types of targets:
+    - chainToPlace: that identify a chain to be placed on the network
+    - placedVNFchain: that identify a chain that has been placed on the network
+
+	For instance:
+		intent(Stakeholder, IntentId, OldTarget, NewTarget)
+		Ti = (chainToPlace, From, PartialPlacement)
+		Tf = (placedVNFchain, FinalPlacedChain, FinalPlacement)
 */
 intent(gameAppOp, gamingServiceIntent, Ti, Tf) :-  
-    deliveryExpectation(gamingService, Ti, T1), % piazzare le VF edgeGamingVF: FromI -> edgeGamingVF -> cloudGamingVF
-    propertyExpectation(privacy, _, _, T1, T2), % inserire encryptionVF prima di edgeGamingVF 
-    propertyExpectation(bandwidth, edgeGamingVF, cloudGamingVF, T2, T3), % > 30 Mbps
-    propertyExpectation(latency, node42, edgeGamingVF, T3, Tf). % < 50 ms 
+    deliveryExpectation(gamingService, Ti, T1), % determines a placement for the gamingService chain
+    propertyExpectation(privacy, _, _, T1, T2), % adds edge encryption to the chain and to the placement
+    propertyExpectation(bandwidth, edgeGamingVF, cloudGamingVF, T2, T3), % checks that bandwidth is larger than 30 Mbps
+    propertyExpectation(latency, node42, edgeGamingVF, T3, Tf). % checks that latency is smaller than 50 ms
     
 propertyExpectation(latency, From, To, T1, T2) :- 
-    condition(T1, From, To, latency, smaller, 25, ms, T2).
+    condition(T1, From, To, latency, smaller, 50, ms, T2).
 propertyExpectation(bandwidth, From, To, T1, T2) :- 
-    condition(T1, From, To, bandwidth, larger, 10, megabps, T2).
+    condition(T1, From, To, bandwidth, larger, 30, megabps, T2).
 propertyExpectation(privacy, From, To, T1, T2) :-
     condition(T1, From, To, privacy, edge, _, _, T2).    
 
