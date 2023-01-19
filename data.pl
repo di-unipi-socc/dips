@@ -1,3 +1,6 @@
+% changingProperties([Prop1, Prop2, ...])
+changingProperties([logging, privacy]).
+
 % application(Id, [VNFs])
 application(gamingService, [edgeGamingVF, cloudGamingVF]).
 
