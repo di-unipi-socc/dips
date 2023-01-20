@@ -1,13 +1,10 @@
 :-['data.pl', 'utils.pl']. % load data
 
 % testing predicate
-start(L, P) :- vnfForIntent(gSIntent, L, P).
+start(L, P) :- vnfForIntent(gSIntent, [on(cloudGamingVF, coolCloud)], L, P).
 
 % intent(Stakeholder, IntentId).
 intent(gameAppOp, gSIntent).
-
-% changingProperties([Prop1, Prop2, ...])
-% changingProperties([logging, privacy]).
 
 % changingProperty(Priority, Property).
 changingProperty(0, privacy).
@@ -31,11 +28,11 @@ condition(c1, privacy, edge, _, _, _).
 condition(c2, bandwidth, larger, 30, megabps, edgeGamingVF, cloudGamingVF).
 condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 
-vnfForIntent(IntentId, Chain, Placement) :-
+vnfForIntent(IntentId, OldPlacement, Chain, Placement) :-
     intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
     sortProperties(IntentId, TargetId, ChangingProperties, NonChangingProperties),
     assembleChain(IntentId, TargetType, ChangingProperties, Chain),
-    placeChain(Chain, NonChangingProperties, [on(cloudGamingVF, coolCloud)], Placement).
+    placeChain(Chain, NonChangingProperties, OldPlacement, Placement).
 
 sortProperties(IntentId, TId, CP, NCP) :-
     findall((P,CIds), nonChangingProperty(IntentId, TId, P, CIds), NCP),
@@ -71,16 +68,16 @@ placeChain(Chain, NonChangingProperties, OldP, NewP) :-
     placeChain(Chain, OldP, NewP),
     checkPlacement(NonChangingProperties, NewP).
 
-% placeChain/3 places the VNFs of the chain on the network
-placeChain([], P, P). % base case
-placeChain([VNF|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
-    member(on(VNF, _), OldP),
-    placeChain(VNFs, OldP, NewP).
-placeChain([VNF|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
+% placeChain/3 places the VNFs of the chain on the network, with head recursion
+placeChain([], _, []). % base case
+placeChain([VNF|VNFs], OldP, [on(VNF, N)|NewP]) :- % if the VNF is already placed, skip it
+    placeChain(VNFs, OldP, NewP),
+    member(on(VNF, N), OldP).
+placeChain([VNF|VNFs], OldP, [on(VNF, N)|NewP]) :- % try place the VNF on a node with enough resources
+    placeChain(VNFs, OldP, NewP),
     \+ member(on(VNF, _), OldP),
     vnf(VNF, HWReqs, _), node(N, HWCaps),  
-    hwOK(N, HWReqs, HWCaps, OldP),
-    placeChain(VNFs, [on(VNF, N)|OldP], NewP).
+    hwOK(N, HWReqs, HWCaps, OldP).
 
 % check cumulative hardware, keeping into account the already placed VNFs
 hwOK(N, HWReqs, HWCaps, Placement) :-
