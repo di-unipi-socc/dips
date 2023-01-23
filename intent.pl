@@ -1,56 +1,31 @@
-:-['data.pl', 'utils.pl']. % load data
+:-['data.pl', 'utils.pl'].
 
-% testing predicate
-start(Chain, Placement) :- vnfForIntent(gSIntent, [on(cloudGamingVF, coolCloud)], Chain, Placement).
+start(Chain, Placement) :- processIntent(gSIntent, [on(cloudGamingVF, coolCloud)], (Chain, Placement)).
 
-% intent(Stakeholder, IntentId).
-intent(gameAppOp, gSIntent).
-
-% changingProperty(Priority, Property).
-changingProperty(0, privacy).
-
-% application(Id, [VNFs])
-application(gamingService, [edgeGamingVF, cloudGamingVF]).
-
-% target(TargetId, TargetType).
-% target(t1, gamingService).
-
-% deliveryExpectation(IntentId, TargetID, TargetType).
-deliveryExpectation(gSIntent, t1, gamingService).
-
-% propertyExpectation(IntentId, Property, [ConditionIds], TargetId).
-propertyExpectation(gSIntent, privacy, [c1], t1).
-propertyExpectation(gSIntent, bandwidth, [c2], t1).
-propertyExpectation(gSIntent, latency, [c3], t1).
-
-% condition(ConditionId, Property, Value, Unit, From, To).
-condition(c1, privacy, edge, _, _, _).
-condition(c2, bandwidth, larger, 30, megabps, edgeGamingVF, cloudGamingVF).
-condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
-
-vnfForIntent(IntentId, OldPlacement, Chain, Placement) :-
+processIntent(IntentId, Ti, Tf) :-
     intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
-    sortProperties(IntentId, TargetId, ChangingProperties, NonChangingProperties),
-    assembleChain(IntentId, TargetType, ChangingProperties, Chain), 
-    reverse(Chain, RChain), % reverse to be able to use tail-recursion
+    deliveryLogic(IntentId, TargetId, TargetType, Ti, Tf).
+
+deliveryLogic(IntentId, TId, TType, OldPlacement, (Chain, Placement)) :- 
+    splitProperties(IntentId, TId, ChangingProperties, NonChangingProperties), % split properties into changing and non-changing ones, w.r.t the chain
+    assembleChain(IntentId, TType, ChangingProperties, Chain), 
+    reverse(Chain, RChain), % reverse to use tail-recursion in placeChain/3
     placeChain(RChain, NonChangingProperties, OldPlacement, Placement).
 
-sortProperties(IntentId, TId, CP, NCP) :-
+splitProperties(IntentId, TId, CP, NCP) :-
     findall((P,CIds), nonChangingProperty(IntentId, TId, P, CIds), NCP),
     findall((P,CIds), relevantChangingProperty(IntentId, TId, P, CIds), Cs), sort(Cs, CP).
+
+relevantChangingProperty(IntentId, TargetId, Priority, CIds) :-
+    propertyExpectation(IntentId, Property, CIds, TargetId), changingProperty(Priority, Property).
+
+nonChangingProperty(IntentId, TargetId, Property, CIds) :-
+    propertyExpectation(IntentId, Property, CIds, TargetId), \+ changingProperty(_, Property).
 
 assembleChain(IntentId, TType, ChangingProperties, Chain) :-
     deliveryExpectation(IntentId, _, TType),
     application(TType, S),
     considerAll(ChangingProperties, S, Chain).
-
-relevantChangingProperty(IntentId, TargetId, Priority, CIds) :-
-    propertyExpectation(IntentId, Property, CIds, TargetId),
-    changingProperty(Priority, Property).
-
-nonChangingProperty(IntentId, TargetId, Property, CIds) :-
-    propertyExpectation(IntentId, Property, CIds, TargetId),
-    \+ changingProperty(_, Property).
 
 considerAll([], L, L).
 considerAll([(_, CIds)|Ps], OldL, NewL) :-
@@ -79,20 +54,6 @@ placeChain([VNF|VNFs], PartialPlacement, FinalPlacement) :- % try place the VNF 
     hwOK(N, HWReqs, HWCaps, PartialPlacement),
     placeChain(VNFs, [on(VNF, N)|PartialPlacement], FinalPlacement).
 
-% placeChain/3 places the VNFs of the chain on the network, with head recursion
-/*
-placeChain([VNF|VNFs], OldP, [on(VNF, N)|NewP]) :- % if the VNF is already placed, skip it
-    placeChain(VNFs, OldP, NewP),
-    member(on(VNF, N), OldP).
-placeChain([VNF|VNFs], OldP, [on(VNF, N)|NewP]) :- % try place the VNF on a node with enough resources
-    placeChain(VNFs, OldP, NewP),
-    \+ member(on(VNF, _), OldP),
-    vnf(VNF, HWReqs, _), node(N, HWCaps),  
-    hwOK(N, HWReqs, HWCaps, OldP).
-placeChain([], _, []). % base case
-*/
-
-% check cumulative hardware, keeping into account the already placed VNFs
 hwOK(N, HWReqs, HWCaps, Placement) :-
     findall(HW, (member(on(V, N), Placement), vnf(V, HW, _)), HWs), sumlist(HWs, HWSum),
     HWSum + HWReqs =< HWCaps.
@@ -114,9 +75,3 @@ checkCondition(C, Placement) :-
 checkCondition(C, Placement) :-
     condition(C, bandwidth, larger, Value, _, From, To),
     getBandwidth(Placement, From, To, BW), BW >= Value.
-    
-% sort properties by a list of ordered properties
-/* mySort(RP, P, C) :-
-    subtract(RP, P, Tmp),
-    subtract(RP, Tmp, C).
-*/
