@@ -1,7 +1,7 @@
 :-['data.pl', 'utils.pl']. % load data
 
 % testing predicate
-start(L, P) :- vnfForIntent(gSIntent, [on(cloudGamingVF, coolCloud)], L, P).
+start(Chain, Placement) :- vnfForIntent(gSIntent, [on(cloudGamingVF, coolCloud)], Chain, Placement).
 
 % intent(Stakeholder, IntentId).
 intent(gameAppOp, gSIntent).
@@ -31,8 +31,9 @@ condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 vnfForIntent(IntentId, OldPlacement, Chain, Placement) :-
     intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
     sortProperties(IntentId, TargetId, ChangingProperties, NonChangingProperties),
-    assembleChain(IntentId, TargetType, ChangingProperties, Chain),
-    placeChain(Chain, NonChangingProperties, OldPlacement, Placement).
+    assembleChain(IntentId, TargetType, ChangingProperties, Chain), 
+    reverse(Chain, RChain), % reverse to be able to use tail-recursion
+    placeChain(RChain, NonChangingProperties, OldPlacement, Placement).
 
 sortProperties(IntentId, TId, CP, NCP) :-
     findall((P,CIds), nonChangingProperty(IntentId, TId, P, CIds), NCP),
@@ -68,8 +69,18 @@ placeChain(Chain, NonChangingProperties, OldP, NewP) :-
     placeChain(Chain, OldP, NewP),
     checkPlacement(NonChangingProperties, NewP).
 
+placeChain([], P, P). % base case
+placeChain([VNF|VNFs], PartialPlacement, FinalPlacement) :- % if the VNF is already placed, skip it
+    member(on(VNF, _), PartialPlacement),
+    placeChain(VNFs, PartialPlacement, FinalPlacement).
+placeChain([VNF|VNFs], PartialPlacement, FinalPlacement) :- % try place the VNF on a node with enough resources
+    \+ member(on(VNF, _), PartialPlacement),
+    vnf(VNF, HWReqs, _), node(N, HWCaps),  
+    hwOK(N, HWReqs, HWCaps, PartialPlacement),
+    placeChain(VNFs, [on(VNF, N)|PartialPlacement], FinalPlacement).
+
 % placeChain/3 places the VNFs of the chain on the network, with head recursion
-placeChain([], _, []). % base case
+/*
 placeChain([VNF|VNFs], OldP, [on(VNF, N)|NewP]) :- % if the VNF is already placed, skip it
     placeChain(VNFs, OldP, NewP),
     member(on(VNF, N), OldP).
@@ -78,6 +89,8 @@ placeChain([VNF|VNFs], OldP, [on(VNF, N)|NewP]) :- % try place the VNF on a node
     \+ member(on(VNF, _), OldP),
     vnf(VNF, HWReqs, _), node(N, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP).
+placeChain([], _, []). % base case
+*/
 
 % check cumulative hardware, keeping into account the already placed VNFs
 hwOK(N, HWReqs, HWCaps, Placement) :-
