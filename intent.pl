@@ -8,7 +8,7 @@ processIntent(IntentId, Ti, Tf) :-
 
 deliveryLogic(IntentId, TId, TType, OldPlacement, (Chain, Placement)) :- 
     splitProperties(IntentId, TId, ChangingProperties, NonChangingProperties), % split properties into changing and non-changing ones, w.r.t the chain
-    assembleChain(IntentId, TType, ChangingProperties, Chain), 
+    assembleChain(TType, ChangingProperties, Chain), 
     reverse(Chain, RChain), % reverse to use tail-recursion in placeChain/3
     placeChain(RChain, NonChangingProperties, OldPlacement, Placement).
 
@@ -22,10 +22,8 @@ relevantChangingProperty(IntentId, TargetId, Priority, CIds) :-
 nonChangingProperty(IntentId, TargetId, Property, CIds) :-
     propertyExpectation(IntentId, Property, CIds, TargetId), \+ changingProperty(_, Property).
 
-assembleChain(IntentId, TType, ChangingProperties, Chain) :-
-    deliveryExpectation(IntentId, _, TType),
-    application(TType, S),
-    considerAll(ChangingProperties, S, Chain).
+assembleChain(TType, ChangingProperties, Chain) :-
+    application(TType, S), considerAll(ChangingProperties, S, Chain).
 
 considerAll([], L, L).
 considerAll([(_, CIds)|Ps], OldL, NewL) :-
@@ -45,14 +43,14 @@ placeChain(Chain, NonChangingProperties, OldP, NewP) :-
     checkPlacement(NonChangingProperties, NewP).
 
 placeChain([], P, P). % base case
-placeChain([VNF|VNFs], PartialPlacement, FinalPlacement) :- % if the VNF is already placed, skip it
-    member(on(VNF, _), PartialPlacement),
-    placeChain(VNFs, PartialPlacement, FinalPlacement).
-placeChain([VNF|VNFs], PartialPlacement, FinalPlacement) :- % try place the VNF on a node with enough resources
-    \+ member(on(VNF, _), PartialPlacement),
+placeChain([VNF|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
+    member(on(VNF, _), OldP),
+    placeChain(VNFs, OldP, NewP).
+placeChain([VNF|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
+    \+ member(on(VNF, _), OldP),
     vnf(VNF, HWReqs, _), node(N, HWCaps),  
-    hwOK(N, HWReqs, HWCaps, PartialPlacement),
-    placeChain(VNFs, [on(VNF, N)|PartialPlacement], FinalPlacement).
+    hwOK(N, HWReqs, HWCaps, OldP),
+    placeChain(VNFs, [on(VNF, N)|OldP], NewP).
 
 hwOK(N, HWReqs, HWCaps, Placement) :-
     findall(HW, (member(on(V, N), Placement), vnf(V, HW, _)), HWs), sumlist(HWs, HWSum),
