@@ -26,15 +26,15 @@ assembleChain(TType, ChangingProperties, Chain) :-
     application(TType, S), considerAll(ChangingProperties, S, Chain).
 
 considerAll([], L, L).
-considerAll([[]|Ps], L, NewL) :- considerAll(Ps, L, NewL).
-considerAll([(_,[C|Cs])|Ps], OldL, NewL) :-
+considerAll([(_, [])|Ps], L, NewL) :- considerAll(Ps, L, NewL).
+considerAll([(P,[C|Cs])|Ps], OldL, NewL) :-
     checkCondition(C, OldL, TmpL),
-    considerAll([Cs|Ps], TmpL, NewL).
+    considerAll([(P,Cs)|Ps], TmpL, NewL).
 
-checkCondition(C, [encVF|L], [encVF|L]) :-
+checkCondition(C, [encVF|L], [encVF|L]) :- 
     condition(C, privacy, edge, _, _, _).
-checkCondition(C, OldL, [encVF|OldL]) :- % if the chain already contains the encVF, do not add it again
-    condition(C, privacy, edge, _, _, _), dif(OldL, [encVF|_]).
+checkCondition(C, L, [encVF|L]) :- 
+    condition(C, privacy, edge, _, _, _), dif(L, [encVF|_]).
 
 placeChain(Chain, NonChangingProperties, OldP, NewP) :-
     placeChain(Chain, OldP, NewP),
