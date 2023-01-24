@@ -1,11 +1,7 @@
-/* INTENT MODEL */
+/* INTENT MODEL (by user) */
 
 % intent(Stakeholder, IntentId).
 intent(gameAppOp, gSIntent).
-
-% changingProperty(Priority, Property).
-changingProperty(0, logging).
-changingProperty(1, privacy).
 
 % target(TargetId, TargetType).
 % target(t1, gamingService).
@@ -23,7 +19,7 @@ condition(c1, privacy, edge, _, _, _).
 condition(c2, bandwidth, larger, 30, megabps, edgeGamingVF, cloudGamingVF).
 condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 
-/* TARGET DEPENDENT MODEL */
+/* PROVIDER/TARGET-DEPENDENT MODEL */
 
 % application(Id, [VNFs])
 application(gamingService, [edgeGamingVF, cloudGamingVF]).
@@ -32,6 +28,10 @@ application(gamingService, [edgeGamingVF, cloudGamingVF]).
 vnf(edgeGamingVF, 4, 15).
 vnf(cloudGamingVF, 10, 8).
 vnf(encVF, 1, 10).
+
+% changingProperty(Priority, Property).
+changingProperty(0, logging).
+changingProperty(1, privacy).
 
 % node(Id, HwCaps)
 node(node42, 10).

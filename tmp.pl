@@ -14,3 +14,13 @@ placeChain([], _, []). % base case
 mySort(RP, P, C) :-
     subtract(RP, P, Tmp),
     subtract(RP, Tmp, C).
+
+considerAll([], L, L).
+considerAll([(_, CIds)|Ps], OldL, NewL) :-
+    consider(CIds, OldL, TmpL),
+    considerAll(Ps, TmpL, NewL).
+
+consider([], L, L).
+consider([C|Cs], OldL, NewL) :-
+    checkCondition(C, OldL, TmpL),
+    consider(Cs, TmpL, NewL).
