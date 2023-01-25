@@ -28,6 +28,17 @@ application(gamingService, [edgeGamingVF, cloudGamingVF]).
 vnf(edgeGamingVF, 4, 15).
 vnf(cloudGamingVF, 10, 8).
 vnf(encVF, 1, 10).
+vnf(decVF, 1, 10).
+
+% vnfXUser(Id, UsersRange, Cost)
+vnfXUser(edgeGamingVF, (1,100), 5).
+vnfXUser(edgeGamingVF, (101,1000), 10).
+vnfXUser(edgeGamingVF, (1001,inf), 12).
+vnfXUser(cloudGamingVF, (1, 1000), 8).
+vnfXUser(cloudGamingVF, (1001, 10000), 15).
+vnfXUser(cloudGamingVF, (10001, inf), 20).
+vnfXUser(encVF, (0, inf), 1).
+vnfXUser(decVF, (0, inf), 1).
 
 % changingProperty(Priority, Property).
 changingProperty(0, logging).

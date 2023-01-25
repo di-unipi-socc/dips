@@ -60,3 +60,6 @@ getPathLat([P1,P2|Ps], From, To, true, TmpLat, NewLat) :- % when both VNF are on
     vnf(V, _, ProcessingTime), 
     Lat is TmpLat + ProcessingTime,
     getPathLat([P2|Ps], From, To, true, Lat, NewLat).
+
+getCost(VNF, NumberOfUsers, Cost) :- 
+    vnfXUser(VNF, (Low, High), Cost), between(Low, High, NumberOfUsers).
