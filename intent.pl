@@ -1,16 +1,25 @@
 :-['data.pl', 'utils.pl'].
 
-start(Chain, Placement) :- processIntent(gSIntent, [on(cloudGamingVF, coolCloud)], (Chain, Placement)).
+% Ti = (NumberOfUsers, PartialPlacement)
+% Tf = (Chain, FinalPlacement, TotCost, UnsatisfiedProperties)
+start(NumberOfUsers, Cost, Chain, P) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, coolCloud)]), (Cost, Chain , P)).
 
 processIntent(IntentId, Ti, Tf) :-
     intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
     deliveryLogic(IntentId, TargetId, TargetType, Ti, Tf).
 
-deliveryLogic(IntentId, TId, TType, OldPlacement, (Chain, Placement)) :- 
-    splitProperties(IntentId, TId, ChangingProperties, NonChangingProperties), % split properties into changing and non-changing ones, w.r.t the chain
-    assembleChain(TType, ChangingProperties, Chain), 
-    reverse(Chain, RChain), % reverse to use tail-recursion in placeChain/3
-    placeChain(RChain, NonChangingProperties, OldPlacement, Placement).
+deliveryLogic(IntentId, TId, TType, (Users, OldPlacement), (Cost, Chain, Placement)) :- 
+    splitProperties(IntentId, TId, CP, NCP),
+    assembleChain(TType, CP, Chain),
+    computeCost(Chain, Users, 0, Cost),
+    reverse(Chain, RChain),
+    placeChain(RChain, NCP, OldPlacement, Placement).
+
+computeCost([], _, Cost, Cost).
+computeCost([VNF|VNFs], Users, OldC, NewC) :-
+    vnfXUser(VNF, (Low, High), C), 
+    between(Low, High, Users), TmpC is OldC + C,
+    computeCost(VNFs, Users, TmpC, NewC).
 
 splitProperties(IntentId, TId, CP, NCP) :-
     findall((P,CIds), nonChangingProperty(IntentId, TId, P, CIds), NCP),
@@ -22,8 +31,8 @@ relevantChangingProperty(IntentId, TargetId, Priority, CIds) :-
 nonChangingProperty(IntentId, TargetId, Property, CIds) :-
     propertyExpectation(IntentId, Property, CIds, TargetId), \+ changingProperty(_, Property).
 
-assembleChain(TType, ChangingProperties, Chain) :-
-    application(TType, S), considerAll(ChangingProperties, S, Chain).
+assembleChain(TType, CP, Chain) :-
+    application(TType, S), considerAll(CP, S, Chain).
 
 considerAll([], L, L).
 considerAll([(_, [])|Ps], L, NewL) :- considerAll(Ps, L, NewL).
@@ -36,9 +45,9 @@ checkCondition(C, [encVF|L], [encVF|L]) :-
 checkCondition(C, L, [encVF|L]) :- 
     condition(C, privacy, edge, _, _, _), dif(L, [encVF|_]).
 
-placeChain(Chain, NonChangingProperties, OldP, NewP) :-
+placeChain(Chain, NCP, OldP, NewP) :-
     placeChain(Chain, OldP, NewP),
-    checkPlacement(NonChangingProperties, NewP).
+    checkPlacement(NCP, NewP).
 
 placeChain([], P, P). % base case
 placeChain([VNF|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
