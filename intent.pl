@@ -2,18 +2,18 @@
 
 % Ti = (NumberOfUsers, PartialPlacement)
 % Tf = (Chain, FinalPlacement, TotCost, UnsatisfiedProperties)
-start(NumberOfUsers, Cost, Chain, P) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, coolCloud)]), (Cost, Chain , P)).
+start(NumberOfUsers, Cost, C, P, UP) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, coolCloud)]), (Cost, C, P, UP)).
 
 processIntent(IntentId, Ti, Tf) :-
     intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
     deliveryLogic(IntentId, TargetId, TargetType, Ti, Tf).
 
-deliveryLogic(IntentId, TId, TType, (Users, OldPlacement), (Cost, Chain, Placement)) :- 
+deliveryLogic(IntentId, TId, TType, (Users, OldPlacement), (Cost, Chain, Placement, UP)) :- 
     splitProperties(IntentId, TId, CP, NCP),
     assembleChain(TType, CP, Chain),
     computeCost(Chain, Users, 0, Cost),
     reverse(Chain, RChain),
-    placeChain(RChain, NCP, OldPlacement, Placement).
+    placeChain(RChain, NCP, OldPlacement, Placement, UP).
 
 computeCost([], _, Cost, Cost).
 computeCost([VNF|VNFs], Users, OldC, NewC) :-
@@ -45,9 +45,9 @@ checkCondition(C, [encVF|L], [encVF|L]) :-
 checkCondition(C, L, [encVF|L]) :- 
     condition(C, privacy, edge, _, _, _), dif(L, [encVF|_]).
 
-placeChain(Chain, NCP, OldP, NewP) :-
+placeChain(Chain, NCP, OldP, NewP, UP) :-
     placeChain(Chain, OldP, NewP),
-    checkPlacement(NCP, NewP).
+    checkPlacement(NCP, NewP, [], UP).
 
 placeChain([], P, P). % base case
 placeChain([VNF|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
@@ -63,20 +63,26 @@ hwOK(N, HWReqs, HWCaps, Placement) :-
     findall(HW, (member(on(V, N), Placement), vnf(V, HW, _)), HWs), sumlist(HWs, HWSum),
     HWSum + HWReqs =< HWCaps.
 
-checkPlacement([], _).
-checkPlacement([(_, CIds)|Ps], Placement) :-
-    checkAll(CIds, Placement),
-    checkPlacement(Ps, Placement).
+checkPlacement([], _, UP, UP).
+checkPlacement([(_, [])|Ps], Placement, OldUP, NewUP) :- checkPlacement(Ps, Placement, OldUP, NewUP).
+checkPlacement([(P,[C|Cs])|Ps], Placement, OldUP, NewUP) :-
+    checkCondition(C, Placement, OldUP, TmpUP),
+    checkPlacement([(P,Cs)|Ps], Placement, TmpUP, NewUP).
 
-checkAll([], _).
-checkAll([C|Cs], Placement) :-
-    checkCondition(C, Placement),
-    checkAll(Cs, Placement).
-
-checkCondition(C, Placement) :-
+checkCondition(C, Placement, OldUP, OldUP) :-
     condition(C, latency, smaller, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), Lat =< Value.
+    getLatency(Placement, From, To, Lat), 
+    Lat =< Value.
+checkCondition(C, Placement, OldUP, [(C, Value, Lat)|OldUP]) :-
+    condition(C, latency, smaller, Value, _, From, To),
+    getLatency(Placement, From, To, Lat), 
+    Lat > Value.
 
-checkCondition(C, Placement) :-
+checkCondition(C, Placement, OldUP, OldUP) :-
     condition(C, bandwidth, larger, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), BW >= Value.
+    getBandwidth(Placement, From, To, BW), 
+    BW >= Value.
+checkCondition(C, Placement, OldUP, [(C, Value, BW)|OldUP]) :-
+    condition(C, bandwidth, larger, Value, _, From, To),
+    getBandwidth(Placement, From, To, BW), 
+    BW < Value.
