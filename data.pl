@@ -24,21 +24,21 @@ condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 % application(Id, [VNFs])
 application(gamingService, [edgeGamingVF, cloudGamingVF]).
 
-% vnf(Id, HWReqs, ProcessingTime)
-vnf(edgeGamingVF, 4, 15).
-vnf(cloudGamingVF, 10, 8).
-vnf(encVF, 1, 10).
-vnf(decVF, 1, 10).
+% vnf(Id, ProcessingTime)
+vnf(edgeGamingVF, 15).
+vnf(cloudGamingVF, 8).
+vnf(encVF, 10).
+vnf(decVF, 10).
 
-% vnfXUser(Id, UsersRange, Cost)
-vnfXUser(edgeGamingVF, (1,100), 5).
-vnfXUser(edgeGamingVF, (101,1000), 10).
-vnfXUser(edgeGamingVF, (1001,inf), 12).
-vnfXUser(cloudGamingVF, (1, 1000), 8).
-vnfXUser(cloudGamingVF, (1001, 10000), 15).
-vnfXUser(cloudGamingVF, (10001, inf), 20).
-vnfXUser(encVF, (0, inf), 1).
-vnfXUser(decVF, (0, inf), 1).
+% vnfXUser(Id, UsersRange, HWReqs)
+vnfXUser(edgeGamingVF, s, (1,100), 5).
+vnfXUser(edgeGamingVF, m, (101,1000), 10).
+vnfXUser(edgeGamingVF, l, (1001,inf), 12).
+vnfXUser(cloudGamingVF, s, (1, 1000), 8).
+vnfXUser(cloudGamingVF, m, (1001, 10000), 15).
+vnfXUser(cloudGamingVF, l, (10001, inf), 20).
+vnfXUser(encVF, x, (0, inf), 1).
+vnfXUser(decVF, x, (0, inf), 1).
 
 % changingProperty(Priority, Property).
 changingProperty(0, logging).
