@@ -2,7 +2,7 @@
 
 % Ti = (NumberOfUsers, PartialPlacement)
 % Tf = (Chain, FinalPlacement, TotCost, UnsatisfiedProperties)
-start(NumberOfUsers, C, P, UP) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, l, coolCloud)]), (C, P, UP)).
+start(NumberOfUsers, C, P, UP) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, s, coolCloud)]), (C, P, UP)).
 
 processIntent(IntentId, Ti, Tf) :-
     intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
@@ -13,8 +13,7 @@ deliveryLogic(IntentId, TId, TType, (Users, OldPlacement), (Chain, Placement, UP
     assembleChain(TType, CP, Chain),
     % computeCost(Chain, Users, 0, Cost), % TODO: retrieve triples (VNF, version, HWReqs)
     getDimension(Chain, Users, [], DChain),
-    reverse(DChain, RChain),
-    placeChain(RChain, NCP, OldPlacement, Placement, UP).
+    placeChain(DChain, NCP, OldPlacement, Placement, UP).
 
 getDimension([], _, Chain, Chain).
 getDimension([VNF|VNFs], Users, OldC, NewC) :-
@@ -50,11 +49,11 @@ placeChain(Chain, NCP, OldP, NewP, UP) :-
     checkPlacement(NCP, NewP, [], UP).
 
 placeChain([], P, P). % base case
-placeChain([(VNF,Version)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
-    member(on(VNF, Version, _), OldP),
+placeChain([(VNF,_)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
+    member(on(VNF, _, _), OldP),
     placeChain(VNFs, OldP, NewP).
 placeChain([(VNF,Version)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
-    \+ member(on(VNF, Version, _), OldP),
+    \+ member(on(VNF, _, _), OldP),
     vnf(VNF, _), vnfXUser(VNF, Version, _, HWReqs), node(N, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placeChain(VNFs, [on(VNF, Version, N)|OldP], NewP).

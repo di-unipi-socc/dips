@@ -25,17 +25,17 @@ condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 application(gamingService, [edgeGamingVF, cloudGamingVF]).
 
 % vnf(Id, ProcessingTime)
-vnf(edgeGamingVF, 15).
+vnf(edgeGamingVF, 10).
 vnf(cloudGamingVF, 8).
-vnf(encVF, 10).
-vnf(decVF, 10).
+vnf(encVF, 1).
+vnf(decVF, 1).
 
-% vnfXUser(Id, UsersRange, HWReqs)
+% vnfXUser(Id, Version, UsersRange, HWReqs)
 vnfXUser(edgeGamingVF, s, (1,100), 5).
 vnfXUser(edgeGamingVF, m, (101,1000), 10).
 vnfXUser(edgeGamingVF, l, (1001,inf), 12).
 vnfXUser(cloudGamingVF, s, (1, 1000), 8).
-vnfXUser(cloudGamingVF, m, (1001, 10000), 15).
+vnfXUser(cloudGamingVF, m, (1001, 10000), 12).
 vnfXUser(cloudGamingVF, l, (10001, inf), 20).
 vnfXUser(encVF, x, (0, inf), 1).
 vnfXUser(decVF, x, (0, inf), 1).
