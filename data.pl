@@ -22,7 +22,7 @@ condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
 % application(Id, [VNFs])
-application(gamingService, [edgeGamingVF, cloudGamingVF]).
+application(gamingService, [(edgeGamingVF, edge), (cloudGamingVF, cloud)]).
 
 % vnf(Id, ProcessingTime)
 vnf(edgeGamingVF, 10).
@@ -43,11 +43,16 @@ vnfXUser(decVF, x, (0, inf), 1).
 % changingProperty(Priority, Property).
 changingProperty(0, logging).
 changingProperty(1, privacy).
+changingProperty(1, security).
+changingProperty(1, caching).
+changingProperty(1, compression).
+changingProperty(1, videoEncoding).
+changingProperty(1, rendering). % app dependent
 
-% node(Id, HwCaps)
-node(node42, 10).
-node(edge1, 5).
-node(coolCloud, 20).
+% node(Id, Type, HwCaps)
+node(node42, edge, 10).
+node(edge1, edge, 5).
+node(coolCloud, cloud, 20).
 
 % link(From, To, FeatLat, FeatBw)
 link(node42, edge1, 2, 30).
