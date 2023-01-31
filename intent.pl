@@ -1,4 +1,4 @@
-:-['data.pl', 'utils.pl'].
+:-['data.pl', 'checks.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 32 000 000 000).
@@ -42,15 +42,6 @@ considerAll([(P,[C|Cs])|Ps], OldL, NewL) :-
     checkCondition(C, OldL, TmpL),
     considerAll([(P,Cs)|Ps], TmpL, NewL).
 
-checkCondition(C, [encVF|L], [encVF|L]) :- 
-    condition(C, privacy, edge, _, _, _).
-checkCondition(C, L, [encVF|L]) :- 
-    condition(C, privacy, edge, _, _, _), dif(L, [encVF|_]).
-
-placeChain(Chain, NCP, OldP, NewP, UP) :-
-    placeChain(Chain, OldP, NewP),
-    checkPlacement(NCP, NewP, [], UP).
-
 placeChain([], P, P). % base case
 placeChain([(VNF,_)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
     member(on(VNF, _, _), OldP),
@@ -70,21 +61,3 @@ checkPlacement([(_, [])|Ps], Placement, OldUP, NewUP) :- checkPlacement(Ps, Plac
 checkPlacement([(P,[C|Cs])|Ps], Placement, OldUP, NewUP) :-
     checkCondition(C, Placement, OldUP, TmpUP),
     checkPlacement([(P,Cs)|Ps], Placement, TmpUP, NewUP).
-
-checkCondition(C, Placement, OldUP, OldUP) :-
-    condition(C, latency, smaller, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), 
-    Lat =< Value.
-checkCondition(C, Placement, OldUP, [(C, latency, desired(Value), actual(Lat))|OldUP]) :-
-    condition(C, latency, smaller, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), 
-    Lat > Value.
-
-checkCondition(C, Placement, OldUP, OldUP) :-
-    condition(C, bandwidth, larger, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), 
-    BW >= Value.
-checkCondition(C, Placement, OldUP, [(C, bandwidth, desired(Value), actual(BW))|OldUP]) :-
-    condition(C, bandwidth, larger, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), 
-    BW < Value.
