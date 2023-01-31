@@ -1,37 +1,40 @@
 :-['data.pl', 'utils.pl'].
 
-% Ti = (NumberOfUsers, PartialPlacement)
-% Tf = (Chain, FinalPlacement, TotCost, UnsatisfiedProperties)
-start(NumberOfUsers, C, P, UP) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, s, coolCloud)]), (C, P, UP)).
+:- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
+:- set_prolog_flag(stack_limit, 32 000 000 000).
+:- set_prolog_flag(last_call_optimisation, true).
 
-processIntent(IntentId, Ti, Tf) :-
-    intent(_, IntentId), deliveryExpectation(IntentId, TargetId, TargetType),
-    deliveryLogic(IntentId, TargetId, TargetType, Ti, Tf).
+start(NumberOfUsers, S) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, s, coolCloud)]), S).
 
-deliveryLogic(IntentId, TId, TType, (Users, OldPlacement), (Chain, Placement, UP)) :- 
-    splitProperties(IntentId, TId, CP, NCP),
-    assembleChain(TType, CP, Chain),
-    % computeCost(Chain, Users, 0, Cost), % TODO: retrieve triples (VNF, version, HWReqs)
+processIntent(IntentId, Ti, STfs) :-
+    intent(_, IntentId, TargetId), 
+    findall(Tf, deliveryLogic(IntentId, TargetId, Ti, Tf), Tfs),
+    % sort by number of unsatisfied properties (third parameter of Tfs)
+    sort(Tfs, STfs).
+
+deliveryLogic(IntentId, TId, (Users, OldPlacement), (L, Chain, Placement, UP)) :- 
+    splitProperties(IntentId, CP, NCP),
+    assembleChain(TId, CP, Chain),
     getDimension(Chain, Users, [], DChain),
-    placeChain(DChain, NCP, OldPlacement, Placement, UP).
+    placeChain(DChain, NCP, OldPlacement, Placement, UP), length(UP, L).
 
 getDimension([], _, Chain, Chain).
 getDimension([VNF|VNFs], Users, OldC, NewC) :-
-    vnfXUser(VNF, Version, (Low, High), _), between(Low, High, Users), 
-    getDimension(VNFs, Users, [(VNF, Version)|OldC], NewC).
+    vnfXUser(VNF, Dim, (Low, High), _), between(Low, High, Users), 
+    getDimension(VNFs, Users, [(VNF, Dim)|OldC], NewC).
 
-splitProperties(IntentId, TId, CP, NCP) :-
-    findall((P,CIds), nonChangingProperty(IntentId, TId, P, CIds), NCP),
-    findall((P,CIds), relevantChangingProperty(IntentId, TId, P, CIds), Cs), sort(Cs, CP).
+splitProperties(IntentId, CP, NCP) :-
+    findall((P,CIds), nonChangingProperty(IntentId, P, CIds), NCP),
+    findall((P,CIds), relevantChangingProperty(IntentId, P, CIds), Cs), sort(Cs, CP).
 
-relevantChangingProperty(IntentId, TargetId, Priority, CIds) :-
-    propertyExpectation(IntentId, Property, CIds, TargetId), changingProperty(Priority, Property).
+relevantChangingProperty(IntentId, Priority, CIds) :-
+    propertyExpectation(IntentId, Property, CIds), changingProperty(Priority, Property).
 
-nonChangingProperty(IntentId, TargetId, Property, CIds) :-
-    propertyExpectation(IntentId, Property, CIds, TargetId), \+ changingProperty(_, Property).
+nonChangingProperty(IntentId,  Property, CIds) :-
+    propertyExpectation(IntentId, Property, CIds), \+ changingProperty(_, Property).
 
-assembleChain(TType, CP, Chain) :-
-    application(TType, S), considerAll(CP, S, Chain).
+assembleChain(TargetId, CP, Chain) :-
+    target(TargetId, S), considerAll(CP, S, Chain).
 
 considerAll([], L, L).
 considerAll([(_, [])|Ps], L, NewL) :- considerAll(Ps, L, NewL).
@@ -52,11 +55,11 @@ placeChain([], P, P). % base case
 placeChain([(VNF,_)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
     member(on(VNF, _, _), OldP),
     placeChain(VNFs, OldP, NewP).
-placeChain([(VNF,Version)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
+placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
     \+ member(on(VNF, _, _), OldP),
-    vnf(VNF, _), vnfXUser(VNF, Version, _, HWReqs), node(N, HWCaps),  
+    vnf(VNF, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, _, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
-    placeChain(VNFs, [on(VNF, Version, N)|OldP], NewP).
+    placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).
 
 hwOK(N, HWReqs, HWCaps, Placement) :-
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),

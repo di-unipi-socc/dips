@@ -1,11 +1,11 @@
 getBandwidth(_, From, To, BW) :- % node - node
-    node(From, _), node(To, _), link(From, To, _, BW).
+    node(From, _, _), node(To, _, _), link(From, To, _, BW).
 getBandwidth([on(VNF,_,N)|Ps], From, To, BW) :- % node - VNF
-    node(From, _), link(From, N, _, TmpBW), 
+    node(From, _, _), link(From, N, _, TmpBW), 
     getMinBW([on(VNF,_,N)|Ps], From, To, true, TmpBW, BW).
 getBandwidth(P, From, To, BW) :- % VNF - node / VNF - VNF
     member(on(From, _, _), P), 
-    (node(To, _); member(on(To,_,_), P)),
+    (node(To, _, _); member(on(To,_,_), P)),
     getMinBW(P, From, To, false, inf, BW).
 
 getMinBW([on(_,_,M)], _, To, _, TmpBW, NewBW) :- % base case when To is a node
@@ -28,13 +28,13 @@ getMinBW([P1,P2|Ps], From, To, true, OldMin, NewMin) :- % when both VNF are on t
     getMinBW([P2|Ps], From, To, true, OldMin, NewMin).
 
 getLatency(_, From, To, Lat) :- % node - node
-    node(From, _), node(To, _), link(From, To, Lat, _).
+    node(From, _, _), node(To, _, _), link(From, To, Lat, _).
 getLatency([on(VNF,_,N)|Ps], From, To, Lat) :- % node - VNF
-    node(From, _), link(From, N, TmpLat, _), 
+    node(From, _, _), link(From, N, TmpLat, _), 
     getPathLat([on(VNF,_,N)|Ps], From, To, true, TmpLat, Lat).
 getLatency(P, From, To, Lat) :- % VNF - node / VNF - VNF
     member(on(From,_,_), P), 
-    (node(To, _); member(on(To,_,_), P)),
+    (node(To, _, _); member(on(To,_,_), P)),
     getPathLat(P, From, To, false, 0, Lat).
 
 getPathLat([on(V,_,M)], _, To, _, TmpLat, NewLat) :- % base case when To is a node
