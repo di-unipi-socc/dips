@@ -9,7 +9,6 @@ start(NumberOfUsers, S) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGami
 processIntent(IntentId, Ti, STfs) :-
     intent(_, IntentId, TargetId), 
     findall(Tf, deliveryLogic(IntentId, TargetId, Ti, Tf), Tfs),
-    % sort by number of unsatisfied properties (third parameter of Tfs)
     sort(Tfs, STfs).
 
 deliveryLogic(IntentId, TId, (Users, OldPlacement), (L, Chain, Placement, UP)) :- 
@@ -42,13 +41,17 @@ considerAll([(P,[C|Cs])|Ps], OldL, NewL) :-
     checkCondition(C, OldL, TmpL),
     considerAll([(P,Cs)|Ps], TmpL, NewL).
 
+placeChain(Chain, NCP, OldP, NewP, UP) :-
+    placeChain(Chain, OldP, NewP),
+    checkPlacement(NCP, NewP, [], UP).
+
 placeChain([], P, P). % base case
 placeChain([(VNF,_)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
     member(on(VNF, _, _), OldP),
     placeChain(VNFs, OldP, NewP).
 placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
     \+ member(on(VNF, _, _), OldP),
-    vnf(VNF, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, _, HWCaps),  
+    vnf(VNF, Type, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, Type, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).
 

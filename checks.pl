@@ -6,10 +6,6 @@ checkCondition(C, [encVF|L], [encVF|L]) :-
 checkCondition(C, L, [encVF|L]) :- 
     condition(C, privacy, edge, _, _, _), dif(L, [encVF|_]).
 
-placeChain(Chain, NCP, OldP, NewP, UP) :-
-    placeChain(Chain, OldP, NewP),
-    checkPlacement(NCP, NewP, [], UP).
-
 % NON-CHANGING PROPERTIES
 checkCondition(C, Placement, OldUP, OldUP) :-
     condition(C, latency, smaller, Value, _, From, To),

@@ -38,25 +38,25 @@ getLatency(P, From, To, Lat) :- % VNF - node / VNF - VNF
     getPathLat(P, From, To, false, 0, Lat).
 
 getPathLat([on(V,_,M)], _, To, _, TmpLat, NewLat) :- % base case when To is a node
-    link(M, To, Lat, _), vnf(V, ProcessingTime),
+    link(M, To, Lat, _), vnf(V, _, ProcessingTime),
     NewLat is TmpLat + Lat + ProcessingTime.
 getPathLat([on(To,_,_)|_], _, To, _, TmpLat, NewLat) :- % base case when To is a VNF
-    vnf(To, ProcessingTime), NewLat is TmpLat + ProcessingTime.
+    vnf(To, _, ProcessingTime), NewLat is TmpLat + ProcessingTime.
 getPathLat([on(VNF,_,_)|Ps], From, To, false, TmpLat, NewLat) :- % before From
     dif(VNF, From), 
     getPathLat(Ps, From, To, false, TmpLat, NewLat).
 getPathLat([P1,P2|Ps], From, To, _, _, NewLat) :- % found From
     P1 = on(From,_,N1), P2 = on(_,_,N2),
-    link(N1, N2, FeatLat, _), vnf(From, ProcessingTime),
+    link(N1, N2, FeatLat, _), vnf(From, _, ProcessingTime),
     Lat is FeatLat + ProcessingTime,
     getPathLat([P2|Ps], From, To, true, Lat, NewLat).
 getPathLat([P1,P2|Ps], From, To, true, TmpLat, NewLat) :- % before To
     P1 = on(V,_,N1), P2 = on(_,_,N2), dif(N1,N2),
-    link(N1, N2, FeatLat, _), vnf(V, ProcessingTime),
+    link(N1, N2, FeatLat, _), vnf(V, _, ProcessingTime),
     Lat is TmpLat + FeatLat + ProcessingTime,
     getPathLat([P2|Ps], From, To, true, Lat, NewLat).
 getPathLat([P1,P2|Ps], From, To, true, TmpLat, NewLat) :- % when both VNF are on the same node, only add processing time
     P1 = on(V,_,N), P2 = on(_,_,N),
-    vnf(V, ProcessingTime), 
+    vnf(V, _, ProcessingTime), 
     Lat is TmpLat + ProcessingTime,
     getPathLat([P2|Ps], From, To, true, Lat, NewLat).

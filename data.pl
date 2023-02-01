@@ -18,11 +18,10 @@ condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
 % target(TargetId, [VNFs])
 target(gamingService, [edgeGamingVF, cloudGamingVF]).
 
-% vnf(Id, ProcessingTime)
-vnf(edgeGamingVF, 10).
-vnf(cloudGamingVF, 8).
-vnf(encVF, 1).
-vnf(decVF, 1).
+% vnf(Id, Affinity, ProcessingTime)
+vnf(edgeGamingVF, edge, 10).
+vnf(cloudGamingVF, cloud, 8).
+vnf(encVF, _, 1).
 
 % vnfXUser(Id, Version, UsersRange, HWReqs)
 vnfXUser(edgeGamingVF, s, (1,100), 5).
@@ -32,7 +31,6 @@ vnfXUser(cloudGamingVF, s, (1, 1000), 8).
 vnfXUser(cloudGamingVF, m, (1001, 10000), 12).
 vnfXUser(cloudGamingVF, l, (10001, inf), 20).
 vnfXUser(encVF, s, (0, inf), 1).
-vnfXUser(decVF, s, (0, inf), 1).
 
 % changingProperty(Priority, Property).
 changingProperty(0, logging).
