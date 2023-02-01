@@ -2,25 +2,25 @@
 
 % CHANGING PROPERTIES
 checkCondition(C, [encVF|L], [encVF|L]) :- 
-    condition(C, privacy, edge, _, _, _).
+    condition(C, privacy, edge, _, _, _, _, _).
 checkCondition(C, L, [encVF|L]) :- 
-    condition(C, privacy, edge, _, _, _), dif(L, [encVF|_]).
+    condition(C, privacy, edge, _, _, _, _, _), dif(L, [encVF|_]).
 
 % NON-CHANGING PROPERTIES
 checkCondition(C, Placement, OldUP, OldUP) :-
-    condition(C, latency, smaller, Value, _, From, To),
+    condition(C, latency, smaller, _, Value, _, From, To),
     getLatency(Placement, From, To, Lat), 
     Lat =< Value.
 checkCondition(C, Placement, OldUP, [(C, latency, desired(Value), actual(Lat))|OldUP]) :-
-    condition(C, latency, smaller, Value, _, From, To),
+    condition(C, latency, smaller, s, Value, _, From, To),
     getLatency(Placement, From, To, Lat), 
     Lat > Value.
 
 checkCondition(C, Placement, OldUP, OldUP) :-
-    condition(C, bandwidth, larger, Value, _, From, To),
+    condition(C, bandwidth, larger, _, Value, _, From, To),
     getBandwidth(Placement, From, To, BW), 
     BW >= Value.
 checkCondition(C, Placement, OldUP, [(C, bandwidth, desired(Value), actual(BW))|OldUP]) :-
-    condition(C, bandwidth, larger, Value, _, From, To),
+    condition(C, bandwidth, larger, s, Value, _, From, To),
     getBandwidth(Placement, From, To, BW), 
     BW < Value.

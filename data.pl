@@ -8,10 +8,10 @@ propertyExpectation(gSIntent, privacy, [c1]).
 propertyExpectation(gSIntent, bandwidth, [c2]).
 propertyExpectation(gSIntent, latency, [c3]).
 
-% condition(ConditionId, Property, Value, Unit, From, To).
-condition(c1, privacy, edge, _, _, _).
-condition(c2, bandwidth, larger, 30, megabps, edgeGamingVF, cloudGamingVF).
-condition(c3, latency, smaller, 50, ms, node42, edgeGamingVF).
+% condition(ConditionId, Property, Bound, Level, Value, Unit, From, To).
+condition(c1, privacy, edge, _, _, _, _, _).
+condition(c2, bandwidth, larger, h, 30, megabps, edgeGamingVF, cloudGamingVF).
+condition(c3, latency, smaller, s, 50, ms, node42, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -44,7 +44,7 @@ changingProperty(6, rendering). % app dependent ?
 % node(Id, Type, HWCaps)
 node(node42, edge, 10).
 node(edge1, edge, 5).
-node(edge2, edge, 8).
+node(edge2, edge, 15).
 node(coolCloud, cloud, 20).
 node(coolCloud2, cloud, 20).
 
@@ -57,6 +57,8 @@ link(edge1, coolCloud2, 5, 100).
 link(coolCloud2, edge1, 5, 100).
 link(node42, coolCloud, 10, 10).
 link(coolCloud, node42, 10, 10).
+link(edge2, coolCloud, 10, 80).
+link(coolCloud, edge2, 10, 80).
 link(coolCloud, coolCloud2, 2, 100).
 link(coolCloud2, coolCloud, 2, 100).
 link(N, N, 0, inf). % no latency and infinite bandwdith on self-links
