@@ -60,3 +60,17 @@ getPathLat([P1,P2|Ps], From, To, true, TmpLat, NewLat) :- % when both VNF are on
     vnf(V, _, ProcessingTime), 
     Lat is TmpLat + ProcessingTime,
     getPathLat([P2|Ps], From, To, true, Lat, NewLat).
+
+addAtEdge(L, What, NewL) :- addAtEdge(L, What, [], NewL).
+
+addAtEdge([], _, X, NewX) :- reverse(X, NewX).
+addAtEdge([T], _, X, NewX) :- reverse([T|X], NewX).
+addAtEdge([E,C|Rest], What, X, NewX) :-
+    vnf(E, edge, _), vnf(C, cloud, _), What = (E2C, _),
+    addAtEdge([C|Rest], What, [E2C, E|X], NewX).
+addAtEdge([C,E|Rest], What, X, NewX) :-
+    vnf(C, cloud, _), vnf(E, edge, _), What = (_, C2E),
+    addAtEdge([E|Rest], What, [C2E, C|X], NewX).
+addAtEdge([L,R|Rest], What, X, NewX) :-
+    vnf(L, A1, _), vnf(R, A2, _), A1 == A2,
+    addAtEdge([R|Rest], What, [L|X], NewX).

@@ -4,12 +4,13 @@
 :- set_prolog_flag(stack_limit, 32 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
-start(NumberOfUsers, S) :- processIntent(gSIntent, (NumberOfUsers, [on(cloudGamingVF, s, coolCloud)]), S).
+start(NumberOfUsers, S) :- processIntent(gSIntent, (NumberOfUsers, []), S).
 
-processIntent(IntentId, Ti, STfs) :-
+processIntent(IntentId, Ti, Tfs) :-
     intent(_, IntentId, TargetId), 
-    findall(Tf, deliveryLogic(IntentId, TargetId, Ti, Tf), Tfs),
-    sort(Tfs, STfs).
+    findall(Tf, deliveryLogic(IntentId, TargetId, Ti, Tf), Ts),
+    sort(Ts, Tfs). 
+    % setof((C,P,UP), member((_,C,P,UP), STs), Tfs).
 
 deliveryLogic(IntentId, TId, (Users, OldPlacement), (L, Chain, Placement, UP)) :- 
     splitProperties(IntentId, CP, NCP),
@@ -46,7 +47,7 @@ placeChain(Chain, NCP, OldP, NewP, UP) :-
     checkPlacement(NCP, NewP, [], UP).
 
 placeChain([], P, P). % base case
-placeChain([(VNF,_)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
+placeChain([(VNF, _)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
     member(on(VNF, _, _), OldP),
     placeChain(VNFs, OldP, NewP).
 placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
