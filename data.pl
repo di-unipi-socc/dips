@@ -5,17 +5,17 @@ intent(gameAppOp, gSIntent, gamingService).
 
 % propertyExpectation(IntentId, Property, [ConditionIds]).
 propertyExpectation(gSIntent, privacy, [cPriv]).
-%propertyExpectation(gSIntent, logging, [cLog]).
+propertyExpectation(gSIntent, logging, [cLog]).
 %propertyExpectation(gSIntent, caching, [cCache]).
 propertyExpectation(gSIntent, bandwidth, [cBW]).
 propertyExpectation(gSIntent, latency, [cLat]).
 
 % condition(ConditionId, Property, Bound, Level, Value, Unit, From, To).
 condition(cPriv, privacy, edge, _, _, _, _, _).
-%condition(cLog, logging, edge, _, _, _, _, _).
+condition(cLog, logging, edge, _, _, _, _, _).
 %condition(cCache, caching, edge, _, _, _, _, _).
-condition(cBW, bandwidth, larger, hard, 30, megabps, edgeGamingVF, cloudGamingVF).
-condition(cLat, latency, smaller, soft, 50, ms, node42, edgeGamingVF).
+condition(cBW, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
+condition(cLat, latency, smaller, hard, 50, ms, node42, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -27,6 +27,7 @@ vnf(edgeGamingVF, edge, 10).
 vnf(cloudGamingVF, cloud, 8).
 vnf(encVF, _, 1).
 vnf(decVF, _, 1).
+vnf(logVF, edge, 1).
 
 % vnfXUser(Id, Version, UsersRange, HWReqs)
 vnfXUser(edgeGamingVF, s, (1,100), 5).
@@ -37,6 +38,7 @@ vnfXUser(cloudGamingVF, m, (1001, 10000), 12).
 vnfXUser(cloudGamingVF, l, (10001, inf), 20).
 vnfXUser(encVF, s, (0, inf), 1).
 vnfXUser(decVF, s, (0, inf), 1).
+vnfXUser(logVF, s, (0, inf), 1).
 
 % changingProperty(Priority, Property).
 changingProperty(0, logging).
