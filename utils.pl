@@ -80,3 +80,19 @@ addAtEdge([C,E|Rest], What, X, NewX) :-
 addAtEdge([C,E|Rest], What, X, NewX) :-
     vnf(C, cloud, _), vnf(E, edge, _), What = (_, C2E), C2E == C,
     addAtEdge([E|Rest], What, X, NewX).
+
+addFromTo(L, From, To, What, NewL) :- addFromTo(L, false, From, To, What, [], NewL).
+
+addFromTo([], _, _, _, _, X, NewX) :- reverse(X, NewX).
+addFromTo([T|Rest], false, From, To, What, X, NewX) :- % skip until From
+    vnf(T, _, _), dif(T, From),
+    addFromTo(Rest, false, From, To, What, [T|X], NewX).
+addFromTo([T|Rest], false, From, To, What, X, NewX) :- % add before From
+    vnf(T, _, _), T == From, What = (Before, _),
+    addFromTo(Rest, true, From, To, What, [T, Before|X], NewX).
+addFromTo([T|Rest], true, From, To, What, X, NewX) :- % skip between From and To
+    vnf(T, _, _), dif(T, To),
+    addFromTo(Rest, true, From, To, What, [T|X], NewX).
+addFromTo([T|Rest], true, From, To, What, X, NewX) :- % add after To
+    vnf(T, _, _), T == To, What = (_, After),
+    addFromTo(Rest, true, From, To, What, [After, T|X], NewX).

@@ -1,17 +1,22 @@
 :-['utils.pl'].
 
 % CHANGING PROPERTIES
-checkCondition(C, [logVF|L], [logVF|L]) :- 
+/* checkCondition(C, [logVF|L], [logVF|L]) :- 
     condition(C, logging, edge, _, _, _, _, _).
 checkCondition(C, L, [logVF|L]) :- 
-    condition(C, logging, edge, _, _, _, _, _), dif(L, [logVF|_]).
-/* checkCondition(C, L, NewL) :-
+    condition(C, logging, edge, _, _, _, _, _), dif(L, [logVF|_]). */
+checkCondition(C, L, NewL) :-
     condition(C, logging, edge, _, _, _, _, _),
-    addAtEdge(L, (encVF, decVF), NewL). */
+    addAtEdge(L, (encVF, decVF), NewL).
 
 checkCondition(C, L, NewL) :-
-    condition(C, privacy, edge, _, _, _, _, _),
+    condition(C, privacy, edge, _, _, _, From, To),
+    var(From), var(To),
     addAtEdge(L, (encVF, decVF), NewL).
+checkCondition(C, L, NewL) :-
+    condition(C, privacy, edge, _, _, _, From, To),
+    nonvar(From), nonvar(To),
+    addFromTo(L, From, To, (encVF, decVF), NewL).
 
 % NON-CHANGING PROPERTIES
 checkCondition(C, Placement, OldUP, OldUP) :-
