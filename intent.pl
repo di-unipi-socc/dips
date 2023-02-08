@@ -4,19 +4,17 @@
 :- set_prolog_flag(stack_limit, 32 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
-start(NumberOfUsers, S) :- processIntent(gSIntent, (NumberOfUsers, []), S).
-
-processIntent(IntentId, Ti, Tfs) :-
+processIntent(IntentId, NUsers, Tfs) :-
     intent(_, IntentId, TargetId), 
-    findall(Tf, deliveryLogic(IntentId, TargetId, Ti, Tf), Ts),
+    findall(Tf, deliveryLogic(IntentId, TargetId, NUsers, Tf), Ts),
     sort(Ts, Tfs). 
     % setof((C,P,UP), member((_,C,P,UP), STs), Tfs).
 
-deliveryLogic(IntentId, TId, (Users, OldPlacement), (L, Chain, Placement, UP)) :- 
+deliveryLogic(IntentId, TId, NUsers, (L, Chain, Placement, UP)) :- 
     splitProperties(IntentId, CP, NCP),
     assembleChain(TId, CP, Chain),
-    getDimension(Chain, Users, [], DChain),
-    placeChain(DChain, NCP, OldPlacement, Placement, UP), length(UP, L).
+    getDimension(Chain, NUsers, [], DChain),
+    placeChain(DChain, NCP, Placement, UP), length(UP, L).
 
 getDimension([], _, Chain, Chain).
 getDimension([VNF|VNFs], Users, OldC, NewC) :-
@@ -42,16 +40,11 @@ considerAll([(P,[C|Cs])|Ps], OldL, NewL) :-
     checkCondition(C, OldL, TmpL),
     considerAll([(P,Cs)|Ps], TmpL, NewL).
 
-placeChain(Chain, NCP, OldP, NewP, UP) :-
-    placeChain(Chain, OldP, NewP),
+placeChain(Chain, NCP, NewP, UP) :-
+    placeChain(Chain, [], NewP),
     checkPlacement(NCP, NewP, [], UP).
-
 placeChain([], P, P). % base case
-/*placeChain([(VNF, _)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
-    member(on(VNF, _, _), OldP),
-    placeChain(VNFs, OldP, NewP). */
 placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
-    %\+ member(on(VNF, _, _), OldP),
     vnf(VNF, Type, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, Type, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).

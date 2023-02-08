@@ -10,10 +10,11 @@ propertyExpectation(gSIntent, logging, [cLog]).
 propertyExpectation(gSIntent, bandwidth, [cBW]).
 propertyExpectation(gSIntent, latency, [cLat]).
 
+% condition(ConditionId, Property, Bound, From, To).
+condition(cPriv, privacy, edge, _, _).
+condition(cLog, logging, edge, _, _).
+
 % condition(ConditionId, Property, Bound, Level, Value, Unit, From, To).
-condition(cPriv, privacy, edge, _, _, _, _, _).
-condition(cLog, logging, edge, _, _, _, _, _).
-%condition(cCache, caching, edge, _, _, _, _, _).
 condition(cBW, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
 condition(cLat, latency, smaller, hard, 50, ms, node42, edgeGamingVF).
 
@@ -25,9 +26,8 @@ target(gamingService, [edgeGamingVF, cloudGamingVF]).
 % vnf(Id, Affinity, ProcessingTime)
 vnf(edgeGamingVF, edge, 10).
 vnf(cloudGamingVF, cloud, 8).
-vnf(encVF, _, 1).
-vnf(decVF, _, 1).
-vnf(logVF, edge, 1).
+vnf(encVF, edge, 1).
+vnf(logVF, cloud, 1).
 
 % vnfXUser(Id, Version, UsersRange, HWReqs)
 vnfXUser(edgeGamingVF, s, (1,100), 5).
