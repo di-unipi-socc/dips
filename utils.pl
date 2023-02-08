@@ -84,15 +84,15 @@ addAtEdge([C,E|Rest], What, X, NewX) :-
 addFromTo(L, From, To, What, NewL) :- addFromTo(L, false, From, To, What, [], NewL).
 
 addFromTo([], _, _, _, _, X, NewX) :- reverse(X, NewX).
-addFromTo([T|Rest], false, From, To, What, X, NewX) :- % skip until From
-    vnf(T, _, _), dif(T, From),
+addFromTo([T|Rest], false, From, To, What, X, NewX) :- % before From
+    dif(T, From),
     addFromTo(Rest, false, From, To, What, [T|X], NewX).
-addFromTo([T|Rest], false, From, To, What, X, NewX) :- % add before From
+addFromTo([T|Rest], false, From, To, What, X, NewX) :- % found From
     vnf(T, _, _), T == From, What = (Before, _),
     addFromTo(Rest, true, From, To, What, [T, Before|X], NewX).
-addFromTo([T|Rest], true, From, To, What, X, NewX) :- % skip between From and To
+addFromTo([T|Rest], true, From, To, What, X, NewX) :- % between From and To
     vnf(T, _, _), dif(T, To),
     addFromTo(Rest, true, From, To, What, [T|X], NewX).
-addFromTo([T|Rest], true, From, To, What, X, NewX) :- % add after To
+addFromTo([T|Rest], true, From, To, What, X, NewX) :- % after To
     vnf(T, _, _), T == To, What = (_, After),
     addFromTo(Rest, true, From, To, What, [After, T|X], NewX).

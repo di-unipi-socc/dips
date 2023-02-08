@@ -47,11 +47,11 @@ placeChain(Chain, NCP, OldP, NewP, UP) :-
     checkPlacement(NCP, NewP, [], UP).
 
 placeChain([], P, P). % base case
-placeChain([(VNF, _)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
+/*placeChain([(VNF, _)|VNFs], OldP, NewP) :- % if the VNF is already placed, skip it
     member(on(VNF, _, _), OldP),
-    placeChain(VNFs, OldP, NewP).
+    placeChain(VNFs, OldP, NewP). */
 placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
-    \+ member(on(VNF, _, _), OldP),
+    %\+ member(on(VNF, _, _), OldP),
     vnf(VNF, Type, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, Type, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).
