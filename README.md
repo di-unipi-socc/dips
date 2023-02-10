@@ -28,7 +28,7 @@
 
 3. Load the main file:
     ```prolog
-    ?- processIntent(IntentId, NumberOfUsers, Output).
+    :- processIntent(IntentId, NumberOfUsers, Output).
     ```
 
     where `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that will be served by the VNF chain, and `Output` is the output of the reasoner.
