@@ -7,8 +7,7 @@
 processIntent(IntentId, NUsers, Tfs) :-
     intent(_, IntentId, TargetId), 
     findall(Tf, deliveryLogic(IntentId, TargetId, NUsers, Tf), Ts),
-    sort(Ts, Tfs). 
-    % setof((C,P,UP), member((_,C,P,UP), STs), Tfs).
+    sort(Ts, Tfs).
 
 deliveryLogic(IntentId, TId, NUsers, (L, Chain, Placement, UP)) :- 
     splitProperties(IntentId, CP, NCP),
@@ -44,12 +43,12 @@ placeChain(Chain, NCP, NewP, UP) :-
     placeChain(Chain, [], NewP),
     checkPlacement(NCP, NewP, [], UP).
 placeChain([], P, P). % base case
-placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % try place the VNF on a node with enough resources
+placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % (try to) place the VNF on a node with enough resources
     vnf(VNF, Type, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, Type, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).
 
-hwOK(N, HWReqs, HWCaps, Placement) :-
+hwOK(N, HWReqs, HWCaps, Placement) :- % hw resources are cumulative
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),
     HWSum + HWReqs =< HWCaps.
 

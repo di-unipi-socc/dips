@@ -6,7 +6,6 @@ intent(gameAppOp, gSIntent, gamingService).
 % propertyExpectation(IntentId, Property, [ConditionIds]).
 propertyExpectation(gSIntent, privacy, [cPriv]).
 propertyExpectation(gSIntent, logging, [cLog]).
-%propertyExpectation(gSIntent, caching, [cCache]).
 propertyExpectation(gSIntent, bandwidth, [cBW]).
 propertyExpectation(gSIntent, latency, [cLat]).
 
@@ -47,7 +46,6 @@ changingProperty(2, security).
 changingProperty(3, caching).
 changingProperty(4, compression).
 changingProperty(5, encoding).
-% changingProperty(6, rendering). % app dependent ?
 
 % node(Id, Type, HWCaps)
 node(node42, edge, 10).
