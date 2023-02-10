@@ -1,13 +1,13 @@
 /* INTENT MODEL (by user) */
 
 % intent(Stakeholder, IntentId, TargetId).
-intent(gameAppOp, gSIntent, gamingService).
+intent(gameAppOp, gsIntent, gamingService).
 
 % propertyExpectation(IntentId, Property, [ConditionIds]).
-propertyExpectation(gSIntent, privacy, [cPriv]).
-propertyExpectation(gSIntent, logging, [cLog]).
-propertyExpectation(gSIntent, bandwidth, [cBW]).
-propertyExpectation(gSIntent, latency, [cLat]).
+propertyExpectation(gsIntent, privacy, [cPriv]).
+propertyExpectation(gsIntent, logging, [cLog]).
+propertyExpectation(gsIntent, bandwidth, [cBW]).
+propertyExpectation(gsIntent, latency, [cLat]).
 
 % condition(ConditionId, Property, Bound, From, To).
 condition(cPriv, privacy, edge, _, _).
@@ -15,7 +15,7 @@ condition(cLog, logging, edge, _, _).
 
 % condition(ConditionId, Property, Bound, Level, Value, Unit, From, To).
 condition(cBW, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
-condition(cLat, latency, smaller, hard, 50, ms, node42, edgeGamingVF).
+condition(cLat, latency, smaller, soft, 50, ms, node42, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -57,12 +57,12 @@ node(coolCloud2, cloud, 20).
 % link(From, To, FeatLat, FeatBw)
 link(node42, edge1, 2, 30).
 link(edge1, node42, 2, 30).
-link(edge1, coolCloud, 5, 100).
-link(coolCloud, edge1, 5, 100).
-link(edge1, coolCloud2, 5, 100).
-link(coolCloud2, edge1, 5, 100).
-link(node42, coolCloud, 10, 10).
-link(coolCloud, node42, 10, 10).
+link(edge1, coolCloud, 20, 100).
+link(coolCloud, edge1, 20, 100).
+link(edge1, coolCloud2, 150, 100).
+link(coolCloud2, edge1, 150, 100).
+link(node42, coolCloud, 100, 10).
+link(coolCloud, node42, 100, 10).
 link(edge2, coolCloud, 10, 80).
 link(coolCloud, edge2, 10, 80).
 link(coolCloud, coolCloud2, 2, 100).

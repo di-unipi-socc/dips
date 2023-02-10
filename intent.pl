@@ -9,7 +9,7 @@ processIntent(IntentId, NUsers, Tfs) :-
     findall(Tf, deliveryLogic(IntentId, TargetId, NUsers, Tf), Ts),
     sort(Ts, Tfs).
 
-deliveryLogic(IntentId, TId, NUsers, (L, Chain, Placement, UP)) :- 
+deliveryLogic(IntentId, TId, NUsers, (L, Placement, UP)) :- 
     splitProperties(IntentId, CP, NCP),
     assembleChain(TId, CP, Chain),
     getDimension(Chain, NUsers, [], DChain),
