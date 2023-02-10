@@ -1,8 +1,6 @@
 # intenter
 
-## Files &nbsp;<picture><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
-  <source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822584.png">
+## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
 </picture>
 
  - `intent.pl` contains the main logic of the reasoner.
@@ -14,9 +12,7 @@
  - `utils.pl` contains a set of useful predicates to _(i)_ assemble the VNF chain, and _(ii)_ compute QoS metrics during the placement phase.
 
 
- ## How To &nbsp;<picture><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2666/2666469.png"/>
-  <source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2666/2666505.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://cdn-icons-png.flaticon.com/512/2666/2666469.png">
+ ## How To &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2666/2666505.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2666/2666469.png">
 </picture>
 
 1. Download or clone this repository. Make sure you have [SWI-Prolog](https://www.swi-prolog.org/download/stable) installed.
