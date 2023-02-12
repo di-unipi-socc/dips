@@ -22,7 +22,7 @@
     swipl intent.pl
     ```
 
-3. Load the main file:
+3. Execute the main query:
     ```prolog
     :- processIntent(IntentId, NumberOfUsers, Output).
     ```
