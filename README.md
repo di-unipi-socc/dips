@@ -1,5 +1,5 @@
 <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="img/logo.dark.png"><img width=400 alt="dips-logo" src="img/logo.png"/>
+    <source media="(prefers-color-scheme: dark)" srcset="img/logo-dark.png"><img width=400 alt="dips-logo" src="img/logo.png"/>
 </picture>
 
 # _Declarative Intent Provisioning System_
