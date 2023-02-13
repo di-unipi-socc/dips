@@ -49,22 +49,22 @@ changingProperty(5, encoding).
 
 % node(Id, Type, HWCaps)
 node(node42, edge, 10).
-node(edge1, edge, 5).
-node(edge2, edge, 15).
+node(tEdge, edge, 5).
+node(hEdge, edge, 15).
 node(coolCloud, cloud, 20).
 node(coolCloud2, cloud, 20).
 
 % link(From, To, FeatLat, FeatBw)
-link(node42, edge1, 2, 30).
-link(edge1, node42, 2, 30).
-link(edge1, coolCloud, 20, 100).
-link(coolCloud, edge1, 20, 100).
-link(edge1, coolCloud2, 15, 100).
-link(coolCloud2, edge1, 15, 100).
-link(node42, coolCloud, 50, 10).
-link(coolCloud, node42, 50, 10).
-link(edge2, coolCloud, 10, 80).
-link(coolCloud, edge2, 10, 80).
+link(node42, tEdge, 2, 30).
+link(tEdge, node42, 2, 30).
+link(tEdge, coolCloud, 20, 70).
+link(coolCloud, tEdge, 20, 70).
+link(tEdge, coolCloud2, 15, 30).
+link(coolCloud2, tEdge, 15, 30).
+link(node42, coolCloud, 10, 40).
+link(coolCloud, node42, 10, 40).
+link(hEdge, coolCloud, 100, 20).
+link(coolCloud, hEdge, 100, 20).
 link(coolCloud, coolCloud2, 2, 100).
 link(coolCloud2, coolCloud, 2, 100).
 link(N, N, 0, inf). % no latency and infinite bandwdith on self-links

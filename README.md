@@ -41,4 +41,27 @@
 
     where `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that will be served by the VNF chain, and `Output` is the output of the reasoner.
 
+    `Output` is a list of tuples, where each tuple is of the form `(ConditionId, Property, DesiredValue, ActualValue)`.
+
+## Output Example &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/3488/3488340.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/3488/3488804.png"></picture>
+
+```prolog
+Output = [(0, [on(logVF, s, coolCloud), on(encVF, s, hEdge), on(edgeGamingVF, m, node42), on(encVF, s, tEdge), on(cloudGamingVF, s, coolCloud)], []),
+          (0, [on(logVF, s, coolCloud), on(encVF, s, hEdge), on(edgeGamingVF, m, node42), on(encVF, s, tEdge), on(cloudGamingVF, s, coolCloud2)], []), 
+          …
+          (0, [on(logVF, s, coolCloud2), on(encVF, s, tEdge), on(edgeGamingVF, m, node42), on(encVF, s, tEdge), on(cloudGamingVF, s, coolCloud2)], []), 
+          (2, [on(logVF, s, coolCloud), on(encVF, s, hEdge), on(edgeGamingVF, m, hEdge), on(encVF, s, hEdge), on(cloudGamingVF, s, coolCloud)], 
+                [(cLat, latency, desired(50), actual(122)), (cBW, bandwidth, desired(30), actual(20))])].
+
+```
+
+## Contributors &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/3369/3369157.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/3369/3369137.png"></picture>
+
+ - [Jacopo Massa](https://pages.di.unipi.it/massa) (_corresponding author_)
+ - [Stefano Forti](http://pages.di.unipi.it/forti)
+ - [Federica Paganelli](http://pages.di.unipi.it/paganelli)
+ - [Patrizio Dazzi](http://pages.di.unipi.it/dazzi)
+ - [Antonio Brogi](http://pages.di.unipi.it/brogi)
+
+
 
