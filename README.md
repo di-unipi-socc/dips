@@ -1,4 +1,4 @@
-# intenter
+# DIPS - Declarative Intent Provisioning System
 
 ## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
 </picture>
