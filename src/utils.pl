@@ -28,12 +28,14 @@ getMinBW([P1,P2|Ps], true, From, To, OldMin, NewMin) :- % when both VNF are on t
 
 getLatency(_, From, To, Lat) :- % node - node
     node(From, _, _), node(To, _, _), link(From, To, Lat, _).
+getLatency(P, From, To, 0) :- member(on(To, _, From), P). % node - VNF, but on(VNF, node) is in P
 getLatency([on(VNF,_,N)|Ps], From, To, Lat) :- % node - VNF
-    node(From, _, _), link(From, N, TmpLat, _), 
+    node(From, _, _), member(on(To, _, N1), Ps), dif(N1, From), link(From, N, TmpLat, _),
     getPathLat([on(VNF,_,N)|Ps], true, From, To, TmpLat, Lat).
+getLatency(P, From, To, 0) :- member(on(From, _, To), P). % VNF - node, but on(VNF, node)
 getLatency(P, From, To, Lat) :- % VNF - node / VNF - VNF
     member(on(From,_,_), P), 
-    (node(To, _, _); member(on(To,_,_), P)),
+    (node(To, _, _); (member(on(To,_,N), P), dif(N,To))),
     getPathLat(P, false, From, To, 0, Lat).
 
 getPathLat([on(V,_,M)], true, _, To, TmpLat, NewLat) :- % base case when To is a node

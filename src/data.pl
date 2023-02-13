@@ -59,10 +59,10 @@ link(node42, edge1, 2, 30).
 link(edge1, node42, 2, 30).
 link(edge1, coolCloud, 20, 100).
 link(coolCloud, edge1, 20, 100).
-link(edge1, coolCloud2, 150, 100).
-link(coolCloud2, edge1, 150, 100).
-link(node42, coolCloud, 100, 10).
-link(coolCloud, node42, 100, 10).
+link(edge1, coolCloud2, 15, 100).
+link(coolCloud2, edge1, 15, 100).
+link(node42, coolCloud, 50, 10).
+link(coolCloud, node42, 50, 10).
 link(edge2, coolCloud, 10, 80).
 link(coolCloud, edge2, 10, 80).
 link(coolCloud, coolCloud2, 2, 100).
