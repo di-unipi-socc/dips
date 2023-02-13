@@ -1,8 +1,6 @@
 <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="img/logo-dark.png"><img width=400 alt="dips-logo" src="img/logo.png"/>
+    <source media="(prefers-color-scheme: dark)" srcset="img/logo-dark.png"><img width=520 alt="dips-logo" src="img/logo.png"/>
 </picture>
-
-# _Declarative Intent Provisioning System_
 
 ## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
 </picture>
