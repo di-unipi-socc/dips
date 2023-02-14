@@ -15,7 +15,7 @@ condition(cLog, logging, edge, _, _).
 
 % condition(ConditionId, Property, Bound, Level, Value, Unit, From, To).
 condition(cBW, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
-condition(cLat, latency, smaller, soft, 50, ms, node42, edgeGamingVF).
+condition(cLat, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -48,23 +48,23 @@ changingProperty(4, compression).
 changingProperty(5, encoding).
 
 % node(Id, Type, HWCaps)
-node(node42, edge, 10).
+node(gateway, edge, 10).
 node(tEdge, edge, 5).
 node(hEdge, edge, 15).
 node(coolCloud, cloud, 20).
-node(coolCloud2, cloud, 20).
+node(coolCloud2, cloud, 30).
 
 % link(From, To, FeatLat, FeatBw)
-link(node42, tEdge, 2, 30).
-link(tEdge, node42, 2, 30).
+link(gateway, tEdge, 2, 30).
+link(tEdge, gateway, 2, 30).
 link(tEdge, coolCloud, 20, 70).
 link(coolCloud, tEdge, 20, 70).
 link(tEdge, coolCloud2, 15, 30).
 link(coolCloud2, tEdge, 15, 30).
-link(node42, coolCloud, 10, 40).
-link(coolCloud, node42, 10, 40).
-link(hEdge, coolCloud, 100, 20).
-link(coolCloud, hEdge, 100, 20).
+link(gateway, coolCloud, 10, 40).
+link(coolCloud, gateway, 10, 40).
+link(hEdge, coolCloud, 10, 20).
+link(coolCloud, hEdge, 10, 20).
 link(coolCloud, coolCloud2, 2, 100).
 link(coolCloud2, coolCloud, 2, 100).
 link(N, N, 0, inf). % no latency and infinite bandwdith on self-links
