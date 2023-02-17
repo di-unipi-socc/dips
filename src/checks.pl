@@ -1,14 +1,17 @@
 :-['utils.pl'].
 
 % CHANGING PROPERTIES
+% add at the beginning of the chain
 checkCondition(C, [logVF|L], [logVF|L]) :- 
-condition(C, logging, edge, _, _).
+    condition(C, logging, edge, _, _).
 checkCondition(C, L, [logVF|L]) :- 
     condition(C, logging, edge, _, _), dif(L, [logVF|_]).
 
+% add at the board (whenever affinitiy changes)
 checkCondition(C, L, NewL) :-
     condition(C, privacy, edge, From, To), var(From), var(To),
     addAtEdge(L, encVF, NewL).
+% add before 'From' and after 'To' (specified by the user)
 checkCondition(C, L, NewL) :-
     condition(C, privacy, edge, From, To), nonvar(From), nonvar(To),
     addFromTo(L, From, To, encVF, NewL).
