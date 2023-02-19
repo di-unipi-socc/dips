@@ -3,19 +3,13 @@
 % intent(Stakeholder, IntentId, TargetId).
 intent(gameAppOp, gsIntent, gamingService).
 
-% propertyExpectation(IntentId, Property, [ConditionIds]).
-propertyExpectation(gsIntent, privacy, [cPriv]).
-propertyExpectation(gsIntent, logging, [cLog]).
-propertyExpectation(gsIntent, bandwidth, [cBW]).
-propertyExpectation(gsIntent, latency, [cLat]).
+% propertyExpectation(IntentId, Property, Bound, From, To).
+propertyExpectation(gsIntent, privacy, edge, _, _).
+propertyExpectation(gsIntent, logging, edge, _, _).
 
-% condition(ConditionId, Property, Bound, From, To).
-condition(cPriv, privacy, edge, _, _).
-condition(cLog, logging, edge, _, _).
-
-% condition(ConditionId, Property, Bound, Level, Value, Unit, From, To).
-condition(cBW, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
-condition(cLat, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
+% propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
+propertyExpectation(gsIntent, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
+propertyExpectation(gsIntent, latency, smaller, soft, 50, ms, gateway, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -39,13 +33,14 @@ vnfXUser(encVF, s, (0, inf), 1).
 vnfXUser(decVF, s, (0, inf), 1).
 vnfXUser(logVF, s, (0, inf), 1).
 
-% changingProperty(Priority, Property).
-changingProperty(0, logging).
-changingProperty(1, privacy).
-changingProperty(2, security).
-changingProperty(3, caching).
-changingProperty(4, compression).
-changingProperty(5, encoding).
+% changingProperty(Property). 
+%% changing properties defined according to priority order
+changingProperty(logging).
+changingProperty(privacy).
+changingProperty(security).
+changingProperty(caching).
+changingProperty(compression).
+changingProperty(encoding).
 
 % node(Id, Type, HWCaps)
 node(gateway, edge, 10).
@@ -55,9 +50,6 @@ node(coolCloud, cloud, 20).
 node(coolCloud2, cloud, 30).
 
 % link(From, To, FeatLat, FeatBw)
-link(gateway, tEdge, 2, 30).
-link(tEdge, gateway, 2, 30).
-link(tEdge, coolCloud, 20, 70).
 link(coolCloud, tEdge, 20, 70).
 link(tEdge, coolCloud2, 15, 30).
 link(coolCloud2, tEdge, 15, 30).

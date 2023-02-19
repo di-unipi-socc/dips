@@ -61,33 +61,20 @@ getPathLat([P1,P2|Ps], true, From, To, TmpLat, NewLat) :- % when both VNF are on
     Lat is TmpLat + ProcessingTime,
     getPathLat([P2|Ps], true, From, To, Lat, NewLat).
 
-addAtEdge(L, VNF, NewL) :- addAtEdge(L, VNF, [], NewL).
-addAtEdge([T], _, X, NewX) :- reverse([T|X], NewX).
-addAtEdge([L,R|Rest], VNF, X, NewX) :-
-    vnf(L, A1, _), vnf(R, A2, _), A1 == A2,
-    addAtEdge([R|Rest], VNF, [L|X], NewX).
-addAtEdge([E,C|Rest], VNF, X, NewX) :-
-    vnf(E, edge, _), vnf(C, cloud, _), dif(VNF, E),
-    addAtEdge([C|Rest], VNF, [VNF, E|X], NewX).
-addAtEdge([E,C|Rest], VNF, X, NewX) :-
-    vnf(E, edge, _), vnf(C, cloud, _), VNF == E,
-    addAtEdge([C|Rest], VNF, X, NewX).
-addAtEdge([C,E|Rest], VNF, X, NewX) :-
-    vnf(C, cloud, _), vnf(E, edge, _), dif(VNF, C),
-    addAtEdge([E|Rest], VNF, [VNF, C|X], NewX).
-addAtEdge([C,E|Rest], VNF, X, NewX) :-
-    vnf(C, cloud, _), vnf(E, edge, _), VNF == C,
-    addAtEdge([E|Rest], VNF, X, NewX).
+addedAtEdge([X,Y|Zs], G, [X|NewZs]) :- X = (_,cloud), addedAtEdge([Y|Zs], G, NewZs).
+addedAtEdge([X,Y|Zs], G, [G,X|NewZs]) :- X = (_,edge), addedAtEdge2([Y|Zs], G, NewZs).
+addedAtEdge([X], _, [X]) :- X = (_,cloud).
+addedAtEdge([X], G, [G,X,G]) :- X = (_,edge).
+addedAtEdge([], _, []).
 
-addFromTo(L, From, To, VNF, NewL) :- addFromTo(L, false, From, To, VNF, [], NewL).
-addFromTo([], true, _, _, _, X, NewX) :- reverse(X, NewX).
-addFromTo([To], true, _, To, VNF, X, NewX) :- 
-    reverse([VNF, To|X], NewX).
-addFromTo([T|Rest], false, From, To, VNF, X, NewX) :- % before From
-    dif(T, From), addFromTo(Rest, false, From, To, VNF, [T|X], NewX).
-addFromTo([From|Rest], false, From, To, VNF, X, NewX) :- % found From
-    addFromTo(Rest, true, From, To, VNF, [From, VNF|X], NewX).
-addFromTo([T|Rest], true, From, To, VNF, X, NewX) :- % between From and To
-    dif(T, To), addFromTo(Rest, true, From, To, VNF, [T|X], NewX).
-addFromTo([To|Rest], true, From, To, VNF, X, NewX) :- % after To
-    addFromTo(Rest, true, From, To, VNF, [VNF, To|X], NewX).
+addedAtEdge2([X,Y|Zs], G, [X|NewZs]) :- X = (_,edge), addedAtEdge2([Y|Zs], G, NewZs).
+addedAtEdge2([X,Y|Zs], G, [G,X|NewZs]) :- X = (_,cloud), addedAtEdge([Y|Zs], G, NewZs).
+addedAtEdge2([X], G, [G,X]) :- X = (_,cloud).
+addedAtEdge2([X], _, [X]) :- X = (_,edge).
+addedAtEdge2([], _, []).
+
+addedFromTo([X,Y|Zs], From, To, G, [X|NewZs]) :- X \== From, addedFromTo([Y|Zs], From, To, G, NewZs).
+addedFromTo([From|Zs], From, To, G, [G, From|NewZs]) :- addedFromTo2(Zs, To, G, NewZs).
+
+addedFromTo2([To|Zs], To, G, [To, G|Zs]).
+addedFromTo2([X|Zs], To, G, [X|NewZs]) :- X \== To, addedFromTo2(Zs, To, G, NewZs).
