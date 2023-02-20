@@ -22,7 +22,7 @@ checkProperty(P, Placement, OldUP, OldUP) :-
     propertyExpectation(_, P, larger, _, Value, _, From, To),
     getBandwidth(Placement, From, To, BW), 
     BW >= Value.
-checkProperty(P, Placement, OldUP, [(P, bandwidth, desired(Value), actual(BW))|OldUP]) :-
+checkProperty(P, Placement, OldUP, [(P, desired(Value), actual(BW))|OldUP]) :-
     propertyExpectation(_, P, larger, soft, Value, _, From, To),
     getBandwidth(Placement, From, To, BW), 
     BW < Value.
