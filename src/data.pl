@@ -6,7 +6,7 @@ intent(gameAppOp, gsIntent, gamingService).
 % Changing property
 % propertyExpectation(IntentId, Property, Bound, From/Before, To/After).
 propertyExpectation(gsIntent, privacy, edge, _, _).
-propertyExpectation(gsIntent, logging, edge, cloudGamingVF, _).
+propertyExpectation(gsIntent, logging, cloud, cloudGamingVF, _).
 
 % Non-changing property
 % propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
@@ -19,20 +19,19 @@ propertyExpectation(gsIntent, latency, smaller, soft, 50, ms, gateway, edgeGamin
 target(gamingService, [edgeGamingVF, cloudGamingVF]).
 
 % vnf(Id, Affinity, ProcessingTime)
-vnf(edgeGamingVF, edge, 10).
+vnf(edgeGamingVF, edge, 15).
 vnf(cloudGamingVF, cloud, 8).
-vnf(encVF, edge, 1).
+vnf(encVF, edge, 2).
 vnf(logVF, cloud, 1).
 
 % vnfXUser(Id, Version, UsersRange, HWReqs)
 vnfXUser(edgeGamingVF, s, (1,100), 5).
 vnfXUser(edgeGamingVF, m, (101,1000), 10).
-vnfXUser(edgeGamingVF, l, (1001,inf), 12).
+vnfXUser(edgeGamingVF, l, (1001,inf), 15).
 vnfXUser(cloudGamingVF, s, (1, 1000), 8).
 vnfXUser(cloudGamingVF, m, (1001, 10000), 12).
-vnfXUser(cloudGamingVF, l, (10001, inf), 20).
-vnfXUser(encVF, s, (0, inf), 1).
-vnfXUser(decVF, s, (0, inf), 1).
+vnfXUser(cloudGamingVF, l, (10001, inf), 25).
+vnfXUser(encVF, s, (0, inf), 2).
 vnfXUser(logVF, s, (0, inf), 1).
 
 % changingProperty(Property). 
@@ -46,19 +45,31 @@ changingProperty(encoding, encodeVF).
 
 % node(Id, Type, HWCaps)
 node(gateway, edge, 10).
-node(edge1, edge, 5).
-node(edge2, edge, 15).
-node(cloud1, cloud, 20).
-node(cloud2, cloud, 30).
+node(edge1, edge, 15).
+node(edge2, edge, 18).
+node(cloud1, cloud, 30).
+node(cloud2, cloud, 50).
 
 % link(From, To, FeatLat, FeatBw)
-link(cloud1, edge1, 20, 70).
-link(edge1, cloud2, 15, 30).
-link(cloud2, edge1, 15, 30).
-link(gateway, cloud1, 10, 40).
-link(cloud1, gateway, 10, 40).
-link(edge2, cloud1, 10, 20).
-link(cloud1, edge2, 10, 20).
-link(cloud1, cloud2, 2, 100).
-link(cloud2, cloud1, 2, 100).
+
+link(gateway, edge1, 5, 70).
+link(gateway, edge2, 35, 70).
+link(gateway, cloud1, 135, 20).
+link(gateway, cloud2, 125, 20).
+link(edge1, gateway, 15, 50).
+link(edge1, edge2, 30, 100).
+link(edge1, cloud1, 130, 100).
+link(edge1, cloud2, 120, 100).
+link(edge2, gateway, 35, 50).
+link(edge2, edge1, 30, 100).
+link(edge2, cloud1, 135, 100).
+link(edge2, cloud2, 125, 100).
+link(cloud1, gateway, 135, 20).
+link(cloud1, edge1, 130, 100).
+link(cloud1, edge2, 125, 100).
+link(cloud1, cloud2, 10, 1000).
+link(cloud2, gateway, 125, 20).
+link(cloud2, edge1, 120, 100).
+link(cloud2, edge2, 125, 100).
+link(cloud2, cloud1, 10, 1000).
 link(N, N, 0, inf). % no latency and infinite bandwdith on self-links

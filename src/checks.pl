@@ -2,8 +2,8 @@
 
 % CHANGING PROPERTIES
 %% specific cases defined before general ones
-% chainModifiedByProperty(logging, edge, _, _, [(logVF,A)|C], [(logVF,A)|C]) :- vnf(logVF, A, _).
-% chainModifiedByProperty(logging, edge, _, _, C, [(logVF,A)|C]) :- dif(C, [(logVF,_)|_]), vnf(logVF, A, _).
+chainModifiedByProperty(logging, edge, _, _, F, [F|C], [F|C]).
+chainModifiedByProperty(logging, edge, _, _, F, C, [F|C]) :- dif(C, [F|_]).
 chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- var(From), var(To), addedAtEdge(Chain, F, NewChain).
 chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), var(To), vnf(From, FromAff, _), addedBefore(Chain, (From, FromAff), F, NewChain).
 chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- var(From), nonvar(To), vnf(To, ToAff, _), addedAfter(Chain, (To, ToAff), F, NewChain).
