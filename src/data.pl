@@ -46,19 +46,19 @@ changingProperty(encoding).
 
 % node(Id, Type, HWCaps)
 node(gateway, edge, 10).
-node(tEdge, edge, 5).
-node(hEdge, edge, 15).
-node(coolCloud, cloud, 20).
-node(coolCloud2, cloud, 30).
+node(edge1, edge, 5).
+node(edge2, edge, 15).
+node(cloud1, cloud, 20).
+node(cloud2, cloud, 30).
 
 % link(From, To, FeatLat, FeatBw)
-link(coolCloud, tEdge, 20, 70).
-link(tEdge, coolCloud2, 15, 30).
-link(coolCloud2, tEdge, 15, 30).
-link(gateway, coolCloud, 10, 40).
-link(coolCloud, gateway, 10, 40).
-link(hEdge, coolCloud, 10, 20).
-link(coolCloud, hEdge, 10, 20).
-link(coolCloud, coolCloud2, 2, 100).
-link(coolCloud2, coolCloud, 2, 100).
+link(cloud1, edge1, 20, 70).
+link(edge1, cloud2, 15, 30).
+link(cloud2, edge1, 15, 30).
+link(gateway, cloud1, 10, 40).
+link(cloud1, gateway, 10, 40).
+link(edge2, cloud1, 10, 20).
+link(cloud1, edge2, 10, 20).
+link(cloud1, cloud2, 2, 100).
+link(cloud2, cloud1, 2, 100).
 link(N, N, 0, inf). % no latency and infinite bandwdith on self-links
