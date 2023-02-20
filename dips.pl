@@ -5,7 +5,7 @@
 :- set_prolog_flag(last_call_optimisation, true).
 
 dips(StakeHolder, IntentId, NUsers, Targets) :-
-    findall(T, delivery(StakeHolder, IntentId, NUsers, T), Ts), sort(Ts, Targets), length(Targets, L), writeln(L).
+    findall(T, delivery(StakeHolder, IntentId, NUsers, T), Ts), sort(Ts, Targets).
 
 delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :- 
     chainForIntent(StakeHolder, IntentId, Chain),
