@@ -10,8 +10,8 @@ propertyExpectation(gsIntent, logging, cloud, cloudGamingVF, _).
 
 % Non-changing property
 % propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
-propertyExpectation(gsIntent, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
-propertyExpectation(gsIntent, latency, smaller, soft, 50, ms, gateway, edgeGamingVF).
+propertyExpectation(gsIntent, bandwidth, larger, soft, 100, megabps, edgeGamingVF, cloudGamingVF).
+propertyExpectation(gsIntent, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -52,24 +52,24 @@ node(cloud2, cloud, 50).
 
 % link(From, To, FeatLat, FeatBw)
 
-link(gateway, edge1, 5, 70).
-link(gateway, edge2, 35, 70).
-link(gateway, cloud1, 135, 20).
-link(gateway, cloud2, 125, 20).
+link(gateway, edge1, 5, 30).
+link(gateway, edge2, 35, 30).
+link(gateway, cloud1, 135, 30).
+link(gateway, cloud2, 125, 30).
 link(edge1, gateway, 15, 50).
-link(edge1, edge2, 30, 100).
-link(edge1, cloud1, 130, 100).
-link(edge1, cloud2, 120, 100).
+link(edge1, edge2, 30, 70).
+link(edge1, cloud1, 130, 120).
+link(edge1, cloud2, 120, 120).
 link(edge2, gateway, 35, 50).
-link(edge2, edge1, 30, 100).
-link(edge2, cloud1, 135, 100).
-link(edge2, cloud2, 125, 100).
-link(cloud1, gateway, 135, 20).
-link(cloud1, edge1, 130, 100).
-link(cloud1, edge2, 125, 100).
+link(edge2, edge1, 30, 70).
+link(edge2, cloud1, 135, 80).
+link(edge2, cloud2, 125, 80).
+link(cloud1, gateway, 135, 30).
+link(cloud1, edge1, 130, 120).
+link(cloud1, edge2, 135, 80).
 link(cloud1, cloud2, 10, 1000).
-link(cloud2, gateway, 125, 20).
-link(cloud2, edge1, 120, 100).
-link(cloud2, edge2, 125, 100).
+link(cloud2, gateway, 125, 30).
+link(cloud2, edge1, 120, 120).
+link(cloud2, edge2, 125, 80).
 link(cloud2, cloud1, 10, 1000).
 link(N, N, 0, inf). % no latency and infinite bandwdith on self-links
