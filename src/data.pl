@@ -4,9 +4,9 @@
 intent(gameAppOp, gsIntent, gamingService).
 
 % Changing property
-% propertyExpectation(IntentId, Property, Bound, From, To).
+% propertyExpectation(IntentId, Property, Bound, From/Before, To/After).
 propertyExpectation(gsIntent, privacy, edge, _, _).
-propertyExpectation(gsIntent, logging, edge, _, _).
+propertyExpectation(gsIntent, logging, edge, cloudGamingVF, _).
 
 % Non-changing property
 % propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
@@ -37,12 +37,12 @@ vnfXUser(logVF, s, (0, inf), 1).
 
 % changingProperty(Property). 
 %% changing properties defined according to priority order
-changingProperty(logging).
-changingProperty(privacy).
-changingProperty(security).
-changingProperty(caching).
-changingProperty(compression).
-changingProperty(encoding).
+changingProperty(logging, logVF).
+changingProperty(privacy, encVF).
+changingProperty(security, authVF).
+changingProperty(caching, cacheVF).
+changingProperty(compression, compVF).
+changingProperty(encoding, encodeVF).
 
 % node(Id, Type, HWCaps)
 node(gateway, edge, 10).

@@ -73,8 +73,17 @@ addedAtEdge2([X], G, [G,X]) :- X = (_,cloud).
 addedAtEdge2([X], _, [X]) :- X = (_,edge).
 addedAtEdge2([], _, []).
 
-addedFromTo([X,Y|Zs], From, To, G, [X|NewZs]) :- X \== From, addedFromTo([Y|Zs], From, To, G, NewZs).
+addedFromTo([X,Y|Zs], From, To, G, [X|NewZs]) :- dif(X,From), addedFromTo([Y|Zs], From, To, G, NewZs).
 addedFromTo([From|Zs], From, To, G, [G, From|NewZs]) :- addedFromTo2(Zs, To, G, NewZs).
 
 addedFromTo2([To|Zs], To, G, [To, G|Zs]).
-addedFromTo2([X|Zs], To, G, [X|NewZs]) :- X \== To, addedFromTo2(Zs, To, G, NewZs).
+addedFromTo2([X|Zs], To, G, [X|NewZs]) :- dif(X,To), addedFromTo2(Zs, To, G, NewZs).
+
+
+addedBefore([Before|Zs], Before, G, [G, Before|Zs]) :- addedBefore(Zs, Before, G, Zs).
+addedBefore([X|Zs], Before, G, [X|NewZs]) :- dif(X,Before), addedBefore(Zs, Before, G, NewZs).
+addedBefore([], _, _, []).
+
+addedAfter([After|Zs], After, G, [After, G|Zs]) :- addedAfter(Zs, After, G, Zs).
+addedAfter([X|Zs], After, G, [X|NewZs]) :- dif(X,After), addedAfter(Zs, After, G, NewZs).
+addedAfter([], _, _, []).

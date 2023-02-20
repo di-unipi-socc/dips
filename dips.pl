@@ -19,15 +19,15 @@ chainForIntent(StakeHolder, IntentId, Chain) :-
     intent(StakeHolder, IntentId, TargetId), 
     target(TargetId, ServiceChain), 
     affinitisedChain(ServiceChain, AffServiceChain),
-    findall(P, (changingProperty(P), propertyExpectation(IntentId, P, _, _, _)), Properties),
+    findall((P,F), (changingProperty(P,F), propertyExpectation(IntentId, P, _, _, _)), Properties),
     completedChain(IntentId, Properties, AffServiceChain, Chain).
 
 affinitisedChain([F|Fs], [(F,A)|NewFs]) :- vnf(F, A, _), affinitisedChain(Fs, NewFs).
 affinitisedChain([], []).
 
-completedChain(IntentId, [P|Ps], Chain, NewChain) :- 
-    propertyExpectation(IntentId, P, Bound, From, To),
-    chainModifiedByProperty(P, Bound, From, To, Chain, ModChain),
+completedChain(IntentId, [(P,F)|Ps], Chain, NewChain) :- 
+    propertyExpectation(IntentId, P, Bound, From, To), vnf(F, A, _),
+    chainModifiedByProperty(P, Bound, From, To, (F,A), Chain, ModChain),
     completedChain(IntentId, Ps, ModChain, NewChain).
 completedChain(_, [], Chain, Chain).
 
