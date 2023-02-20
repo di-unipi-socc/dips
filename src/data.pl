@@ -3,10 +3,12 @@
 % intent(Stakeholder, IntentId, TargetId).
 intent(gameAppOp, gsIntent, gamingService).
 
+% Changing property
 % propertyExpectation(IntentId, Property, Bound, From, To).
 propertyExpectation(gsIntent, privacy, edge, _, _).
 propertyExpectation(gsIntent, logging, edge, _, _).
 
+% Non-changing property
 % propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
 propertyExpectation(gsIntent, bandwidth, larger, soft, 30, megabps, edgeGamingVF, cloudGamingVF).
 propertyExpectation(gsIntent, latency, smaller, soft, 50, ms, gateway, edgeGamingVF).

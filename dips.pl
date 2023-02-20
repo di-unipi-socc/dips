@@ -33,23 +33,23 @@ completedChain(_, [], Chain, Chain).
 
 %% PLACEMENT %%
 
-dimensionedChain([], _, Chain, Chain).
 dimensionedChain([(F,_)|Zs], U, OldC, NewC) :- vnfXUser(F, D, (L, H), _), between(L, H, U),  dimensionedChain(Zs, U, [(F, D)|OldC], NewC).
+dimensionedChain([], _, Chain, Chain).
 
 placeChain(Chain, NCP, NewP, UP) :-
     placeChain(Chain, [], NewP),
     checkPlacement(NCP, NewP, [], UP).
-placeChain([], P, P). % base case
-placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % (try to) place the VNF on a node with enough resources
+placeChain([(VNF,Dim)|VNFs], OldP, NewP) :-
     vnf(VNF, Type, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, Type, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).
+placeChain([], P, P).
 
 hwOK(N, HWReqs, HWCaps, Placement) :- % hw resources are cumulative
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),
     HWSum + HWReqs =< HWCaps.
 
-checkPlacement([], _, UP, UP).
 checkPlacement([P|Ps], Placement, OldUP, NewUP) :- 
     checkProperty(P, Placement, OldUP, TmpUP), 
     checkPlacement(Ps, Placement, TmpUP, NewUP).
+checkPlacement([], _, UP, UP).
