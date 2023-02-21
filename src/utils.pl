@@ -1,93 +1,50 @@
-getBandwidth(_, From, To, BW) :- % node - node
-    node(From, _, _), node(To, _, _), link(From, To, _, BW).
-getBandwidth([on(VNF,_,N)|Ps], From, To, BW) :- % node - VNF
-    node(From, _, _), link(From, N, _, TmpBW), 
-    getMinBW([on(VNF,_,N)|Ps], true, From, To, TmpBW, BW).
-getBandwidth(P, From, To, BW) :- % VNF - node / VNF - VNF
-    member(on(From, _, _), P), 
-    (node(To, _, _); member(on(To,_,_), P)),
-    getMinBW(P, false, From, To, inf, BW).
+minBW(_, From, To, BW) :- node(From,_,_), node(To,_,_), link(From, To, _, BW). % node - node
+minBW([on(_,_,N)|Zs], From, To, BW) :- node(From,_,_), link(From, N, _, TmpBW), minBW2(Zs, To, TmpBW, BW). % node - VNF
+minBW(P, From, To, BW) :- minBW(P, From, To, inf, BW). % VNF - node / VNF - VNF
 
-getMinBW([on(_,_,M)], true, _, To, TmpBW, NewBW) :- % base case when To is a node
-    link(M, To, _, BW), NewBW is min(BW, TmpBW).
-getMinBW([on(To,_,_)|_], true, _, To, BW, BW). % base case when To is a VNF
-getMinBW([on(VNF,_,_)|Ps], false, From, To, OldMin, NewMin) :- % before From
-    dif(VNF, From), getMinBW(Ps, false, From, To, OldMin, NewMin).
-getMinBW([P1,P2|Ps], false, From, To, _, NewMin) :- % found From
-    P1 = on(From,_,N1), P2 = on(_,_,N2),
-    link(N1, N2, _, BW),
-    getMinBW([P2|Ps], true, From, To, BW, NewMin).
-getMinBW([P1,P2|Ps], true, From, To, OldMin, NewMin) :- % before To
-    P1 = on(_,_,N1), P2 = on(_,_,N2), dif(N1,N2),
-    link(N1, N2, _, BW),
-    TmpMin is min(OldMin, BW),
-    getMinBW([P2|Ps], true, From, To, TmpMin, NewMin).
-getMinBW([P1,P2|Ps], true, From, To, OldMin, NewMin) :- % when both VNF are on the same node, just go on 
-    P1 = on(_,_,N), P2 = on(_,_,N),
-    getMinBW([P2|Ps], true, From, To, OldMin, NewMin).
+minBW([on(X,_,_),Y|Zs], From, To, OldBW, NewBW) :- dif(X, From), minBW([Y|Zs], From, To, OldBW, NewBW).
+minBW([on(From,_,N),on(Y,_,M)|Zs], From, To, _, NewBW) :- link(N,M,_,BW), minBW2([on(Y,_,M)|Zs], To, BW, NewBW).
+minBW([on(From,_,N)], From, To, OldBW, NewBW) :- link(N, To, _, BW), NewBW is min(OldBW, BW). % To is a node
 
-getLatency(_, From, To, Lat) :- % node - node
-    node(From, _, _), node(To, _, _), link(From, To, Lat, _).
-getLatency(P, From, To, 0) :- member(on(To, _, From), P). % node - VNF, but on(VNF, node) is in P
-getLatency([on(VNF,_,N)|Ps], From, To, Lat) :- % node - VNF
-    node(From, _, _), member(on(To, _, N1), Ps), dif(N1, From), link(From, N, TmpLat, _),
-    getPathLat([on(VNF,_,N)|Ps], true, From, To, TmpLat, Lat).
-getLatency(P, From, To, 0) :- member(on(From, _, To), P). % VNF - node, but on(VNF, node)
-getLatency(P, From, To, Lat) :- % VNF - node / VNF - VNF
-    member(on(From,_,_), P), 
-    (node(To, _, _); (member(on(To,_,N), P), dif(N,To))),
-    getPathLat(P, false, From, To, 0, Lat).
+minBW2([on(X,_,N),on(Y,_,M)|Zs], To, OldBW, NewBW) :- dif(X, To), link(N,M,_,BW), TmpBW is min(OldBW, BW), minBW2([on(Y,_,M)|Zs], To, TmpBW, NewBW).
+minBW2([on(_,_,N)|_], To, OldBW, NewBW) :- link(N, To, _, BW), NewBW is min(OldBW, BW). % To is a node
+minBW2([on(To,_,_)|_], To, BW, BW). % To is a VNF
 
-getPathLat([on(V,_,M)], true, _, To, TmpLat, NewLat) :- % base case when To is a node
-    link(M, To, Lat, _), vnf(V, _, ProcessingTime),
-    NewLat is TmpLat + Lat + ProcessingTime.
-getPathLat([on(To,_,_)|_], true, _, To, TmpLat, NewLat) :- % base case when To is a VNF
-    vnf(To, _, ProcessingTime), NewLat is TmpLat + ProcessingTime.
-getPathLat([on(VNF,_,_)|Ps], false, From, To, TmpLat, NewLat) :- % before From
-    dif(VNF, From), getPathLat(Ps, false, From, To, TmpLat, NewLat).
-getPathLat([P1,P2|Ps], false, From, To, _, NewLat) :- % found From
-    P1 = on(From,_,N1), P2 = on(_,_,N2),
-    link(N1, N2, FeatLat, _), vnf(From, _, ProcessingTime),
-    Lat is FeatLat + ProcessingTime,
-    getPathLat([P2|Ps], true, From, To, Lat, NewLat).
-getPathLat([P1,P2|Ps], true, From, To, TmpLat, NewLat) :- % between From and To
-    P1 = on(V,_,N1), P2 = on(_,_,N2), dif(N1,N2),
-    link(N1, N2, FeatLat, _), vnf(V, _, ProcessingTime),
-    Lat is TmpLat + FeatLat + ProcessingTime,
-    getPathLat([P2|Ps], true, From, To, Lat, NewLat).
-getPathLat([P1,P2|Ps], true, From, To, TmpLat, NewLat) :- % when both VNF are on the same node, only add processing time
-    P1 = on(V,_,N), P2 = on(_,_,N),
-    vnf(V, _, ProcessingTime), 
-    Lat is TmpLat + ProcessingTime,
-    getPathLat([P2|Ps], true, From, To, Lat, NewLat).
+pathLat(_, From, To, Lat) :- node(From, _, _), node(To,_,_), link(From, To, Lat, _).
+pathLat([on(F,_,N)|Zs], From, To, Lat) :- node(From,_,_), link(From, N, FeatLat, _), vnf(F,_,PTime), TmpLat is FeatLat + PTime, pathLat2(Zs, To, TmpLat, Lat). % node - VNF
+pathLat(P, From, To, Lat) :- pathLat(P, From, To, 0, Lat). % VNF - node / VNF - VNF
 
-addAtEdge(L, VNF, NewL) :- addAtEdge(L, VNF, [], NewL).
-addAtEdge([T], _, X, NewX) :- reverse([T|X], NewX).
-addAtEdge([L,R|Rest], VNF, X, NewX) :-
-    vnf(L, A1, _), vnf(R, A2, _), A1 == A2,
-    addAtEdge([R|Rest], VNF, [L|X], NewX).
-addAtEdge([E,C|Rest], VNF, X, NewX) :-
-    vnf(E, edge, _), vnf(C, cloud, _), dif(VNF, E),
-    addAtEdge([C|Rest], VNF, [VNF, E|X], NewX).
-addAtEdge([E,C|Rest], VNF, X, NewX) :-
-    vnf(E, edge, _), vnf(C, cloud, _), VNF == E,
-    addAtEdge([C|Rest], VNF, X, NewX).
-addAtEdge([C,E|Rest], VNF, X, NewX) :-
-    vnf(C, cloud, _), vnf(E, edge, _), dif(VNF, C),
-    addAtEdge([E|Rest], VNF, [VNF, C|X], NewX).
-addAtEdge([C,E|Rest], VNF, X, NewX) :-
-    vnf(C, cloud, _), vnf(E, edge, _), VNF == C,
-    addAtEdge([E|Rest], VNF, X, NewX).
+pathLat([on(X,_,_),Y|Zs], From, To, OldLat, NewLat) :- dif(X, From), pathLat([Y|Zs], From, To, OldLat, NewLat).
+pathLat([on(From,_,N),on(Y,_,M)|Zs], From, To, _, NewLat) :- link(N,M,Lat,_), vnf(From,_,PTime), TmpLat is Lat + PTime, pathLat2([on(Y,_,M)|Zs], To, TmpLat, NewLat).
+pathLat([on(From,_,N)], From, To, OldLat, NewLat) :- link(N, To, Lat, _), vnf(From,_,PTime), NewLat is OldLat + Lat + PTime. % To is a node
 
-addFromTo(L, From, To, VNF, NewL) :- addFromTo(L, false, From, To, VNF, [], NewL).
-addFromTo([], true, _, _, _, X, NewX) :- reverse(X, NewX).
-addFromTo([To], true, _, To, VNF, X, NewX) :- 
-    reverse([VNF, To|X], NewX).
-addFromTo([T|Rest], false, From, To, VNF, X, NewX) :- % before From
-    dif(T, From), addFromTo(Rest, false, From, To, VNF, [T|X], NewX).
-addFromTo([From|Rest], false, From, To, VNF, X, NewX) :- % found From
-    addFromTo(Rest, true, From, To, VNF, [From, VNF|X], NewX).
-addFromTo([T|Rest], true, From, To, VNF, X, NewX) :- % between From and To
-    dif(T, To), addFromTo(Rest, true, From, To, VNF, [T|X], NewX).
-addFromTo([To|Rest], true, From, To, VNF, X, NewX) :- % after To
-    addFromTo(Rest, true, From, To, VNF, [VNF, To|X], NewX).
+pathLat2([on(X,_,N),on(Y,_,M)|Zs], To, OldLat, NewLat) :- dif(X, To), link(N,M,Lat,_), vnf(X,_,PTime), TmpLat is OldLat + Lat + PTime, pathLat2([on(Y,_,M)|Zs], To, TmpLat, NewLat).
+pathLat2([on(X,_,N)|_], To, OldLat, NewLat) :- link(N, To, Lat, _), vnf(X,_,PTime), NewLat is OldLat + Lat + PTime. % To is a node
+pathLat2([on(To,_,_)|_], To, TmpLat, NewLat) :- vnf(To, _, PTime), NewLat is TmpLat + PTime. % To is a VNF
+
+addedAtEdge([X,Y|Zs], G, [X|NewZs]) :- X = (_,cloud), addedAtEdge([Y|Zs], G, NewZs).
+addedAtEdge([X,Y|Zs], G, [G,X|NewZs]) :- X = (_,edge), addedAtEdge2([Y|Zs], G, NewZs).
+addedAtEdge([X], _, [X]) :- X = (_,cloud).
+addedAtEdge([X], G, [G,X,G]) :- X = (_,edge).
+addedAtEdge([], _, []).
+
+addedAtEdge2([X,Y|Zs], G, [X|NewZs]) :- X = (_,edge), addedAtEdge2([Y|Zs], G, NewZs).
+addedAtEdge2([X,Y|Zs], G, [G,X|NewZs]) :- X = (_,cloud), addedAtEdge([Y|Zs], G, NewZs).
+addedAtEdge2([X], G, [G,X]) :- X = (_,cloud).
+addedAtEdge2([X], _, [X]) :- X = (_,edge).
+addedAtEdge2([], _, []).
+
+addedFromTo([X,Y|Zs], From, To, G, [X|NewZs]) :- dif(X,From), addedFromTo([Y|Zs], From, To, G, NewZs).
+addedFromTo([From|Zs], From, To, G, [G, From|NewZs]) :- addedFromTo2(Zs, To, G, NewZs).
+
+addedFromTo2([To|Zs], To, G, [To, G|Zs]).
+addedFromTo2([X|Zs], To, G, [X|NewZs]) :- dif(X,To), addedFromTo2(Zs, To, G, NewZs).
+
+
+addedBefore([Before|Zs], Before, G, [G, Before|Zs]) :- addedBefore(Zs, Before, G, Zs).
+addedBefore([X|Zs], Before, G, [X|NewZs]) :- dif(X,Before), addedBefore(Zs, Before, G, NewZs).
+addedBefore([], _, _, []).
+
+addedAfter([After|Zs], After, G, [After, G|Zs]) :- addedAfter(Zs, After, G, Zs).
+addedAfter([X|Zs], After, G, [X|NewZs]) :- dif(X,After), addedAfter(Zs, After, G, NewZs).
+addedAfter([], _, _, []).

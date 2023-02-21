@@ -4,56 +4,52 @@
 :- set_prolog_flag(stack_limit, 32 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
-dips(IntentId, NUsers, Tfs) :-
-    intent(_, IntentId, TargetId), 
-    findall(Tf, deliveryLogic(IntentId, TargetId, NUsers, Tf), Ts),
-    sort(Ts, Tfs).
+dips(StakeHolder, IntentId, NUsers, Targets) :-
+    findall(T, delivery(StakeHolder, IntentId, NUsers, T), Ts), sort(Ts, Targets).
 
-deliveryLogic(IntentId, TId, NUsers, (L, Placement, UP)) :- 
-    splitProperties(IntentId, CP, NCP),
-    assembleChain(TId, CP, Chain),
-    getDimension(Chain, NUsers, [], DChain),
-    placeChain(DChain, NCP, Placement, UP), length(UP, L).
+delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :- 
+    chainForIntent(StakeHolder, IntentId, Chain),
+    dimensionedChain(Chain, NUsers, [], DimChain),
+    findall(P, propertyExpectation(IntentId, P,_,_,_,_,_,_), NCP),
+    placedChain(DimChain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
 
-getDimension([], _, Chain, Chain).
-getDimension([VNF|VNFs], Users, OldC, NewC) :-
-    vnfXUser(VNF, Dim, (Low, High), _), between(Low, High, Users), 
-    getDimension(VNFs, Users, [(VNF, Dim)|OldC], NewC).
+%% ASSEMBLY %%
 
-splitProperties(IntentId, CP, NCP) :-
-    findall((P,CIds), nonChangingProperty(IntentId, P, CIds), NCP),
-    findall((P,CIds), relevantChangingProperty(IntentId, P, CIds), Cs), sort(Cs, CP).
+chainForIntent(StakeHolder, IntentId, Chain) :-
+    intent(StakeHolder, IntentId, TargetId), 
+    target(TargetId, ServiceChain), 
+    affinitisedChain(ServiceChain, AffServiceChain),
+    findall((P,F), (changingProperty(P,F), propertyExpectation(IntentId, P, _, _, _)), Properties),
+    completedChain(IntentId, Properties, AffServiceChain, Chain).
 
-relevantChangingProperty(IntentId, Priority, CIds) :-
-    propertyExpectation(IntentId, Property, CIds), changingProperty(Priority, Property).
+affinitisedChain([F|Fs], [(F,A)|NewFs]) :- vnf(F, A, _), affinitisedChain(Fs, NewFs).
+affinitisedChain([], []).
 
-nonChangingProperty(IntentId,  Property, CIds) :-
-    propertyExpectation(IntentId, Property, CIds), \+ changingProperty(_, Property).
+completedChain(IntentId, [(P,F)|Ps], Chain, NewChain) :- 
+    propertyExpectation(IntentId, P, Bound, From, To), vnf(F, A, _),
+    chainModifiedByProperty(P, Bound, From, To, (F,A), Chain, ModChain),
+    completedChain(IntentId, Ps, ModChain, NewChain).
+completedChain(_, [], Chain, Chain).
 
-assembleChain(TargetId, CP, Chain) :-
-    target(TargetId, S), considerAll(CP, S, Chain).
+%% PLACEMENT %%
 
-considerAll([], L, L).
-considerAll([(_, [])|Ps], L, NewL) :- considerAll(Ps, L, NewL).
-considerAll([(P,[C|Cs])|Ps], OldL, NewL) :-
-    checkCondition(C, OldL, TmpL),
-    considerAll([(P,Cs)|Ps], TmpL, NewL).
+dimensionedChain([(F,A)|Zs], U, OldC, NewC) :- vnfXUser(F, D, (L, H), _), between(L, H, U),  dimensionedChain(Zs, U, [(F, A, D)|OldC], NewC).
+dimensionedChain([], _, Chain, Chain).
 
-placeChain(Chain, NCP, NewP, UP) :-
-    placeChain(Chain, [], NewP),
+placedChain(Chain, NCP, NewP, UP) :-
+    placedChain(Chain, [], NewP),
     checkPlacement(NCP, NewP, [], UP).
-placeChain([], P, P). % base case
-placeChain([(VNF,Dim)|VNFs], OldP, NewP) :- % (try to) place the VNF on a node with enough resources
-    vnf(VNF, Type, _), vnfXUser(VNF, Dim, _, HWReqs), node(N, Type, HWCaps),  
+placedChain([(F, A, D)|VNFs], OldP, NewP) :-
+    vnfXUser(F, D, _, HWReqs), node(N, A, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
-    placeChain(VNFs, [on(VNF, Dim, N)|OldP], NewP).
+    placedChain(VNFs, [on(F, D, N)|OldP], NewP).
+placedChain([], P, P).
 
 hwOK(N, HWReqs, HWCaps, Placement) :- % hw resources are cumulative
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),
     HWSum + HWReqs =< HWCaps.
 
+checkPlacement([P|Ps], Placement, OldUP, NewUP) :- 
+    checkProperty(P, Placement, OldUP, TmpUP), 
+    checkPlacement(Ps, Placement, TmpUP, NewUP).
 checkPlacement([], _, UP, UP).
-checkPlacement([(_, [])|Ps], Placement, OldUP, NewUP) :- checkPlacement(Ps, Placement, OldUP, NewUP).
-checkPlacement([(P,[C|Cs])|Ps], Placement, OldUP, NewUP) :-
-    checkCondition(C, Placement, OldUP, TmpUP),
-    checkPlacement([(P,Cs)|Ps], Placement, TmpUP, NewUP).

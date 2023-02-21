@@ -1,36 +1,24 @@
 :-['utils.pl'].
 
 % CHANGING PROPERTIES
-% add at the beginning of the chain
-checkCondition(C, [logVF|L], [logVF|L]) :- 
-    condition(C, logging, edge, _, _).
-checkCondition(C, L, [logVF|L]) :- 
-    condition(C, logging, edge, _, _), dif(L, [logVF|_]).
-
-% add at the board (whenever affinitiy changes)
-checkCondition(C, L, NewL) :-
-    condition(C, privacy, edge, From, To), var(From), var(To),
-    addAtEdge(L, encVF, NewL).
-% add before 'From' and after 'To' (specified by the user)
-checkCondition(C, L, NewL) :-
-    condition(C, privacy, edge, From, To), nonvar(From), nonvar(To),
-    addFromTo(L, From, To, encVF, NewL).
+%% specific cases defined before general ones
+chainModifiedByProperty(logging, edge, _, _, F, [F|C], [F|C]).
+chainModifiedByProperty(logging, edge, _, _, F, C, [F|C]) :- dif(C, [F|_]).
+chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- var(From), var(To), addedAtEdge(Chain, F, NewChain).
+chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), var(To), vnf(From, FromAff, _), addedBefore(Chain, (From, FromAff), F, NewChain).
+chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- var(From), nonvar(To), vnf(To, ToAff, _), addedAfter(Chain, (To, ToAff), F, NewChain).
+chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), nonvar(To), vnf(From, FromAff, _), vnf(To, ToAff, _), addedFromTo(Chain, (From, FromAff), (To, ToAff), F, NewChain).
 
 % NON-CHANGING PROPERTIES
-checkCondition(C, Placement, OldUP, OldUP) :-
-    condition(C, latency, smaller, _, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), 
+checkProperty(latency, Placement, OldUP, OldUP) :-
+    propertyExpectation(_, latency, smaller, _, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat =< Value.
-checkCondition(C, Placement, OldUP, [(C, latency, desired(Value), actual(Lat))|OldUP]) :-
-    condition(C, latency, smaller, soft, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), 
+checkProperty(latency, Placement, OldUP, [(latency, desired(Value), actual(Lat))|OldUP]) :-
+    propertyExpectation(_, latency, smaller, soft, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat > Value.
-
-checkCondition(C, Placement, OldUP, OldUP) :-
-    condition(C, bandwidth, larger, _, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), 
+checkProperty(bandwidth, Placement, OldUP, OldUP) :-
+    propertyExpectation(_, bandwidth, larger, _, Value, _, From, To), minBW(Placement, From, To, BW),
     BW >= Value.
-checkCondition(C, Placement, OldUP, [(C, bandwidth, desired(Value), actual(BW))|OldUP]) :-
-    condition(C, bandwidth, larger, soft, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), 
+checkProperty(bandwidth, Placement, OldUP, [(bandwidth, desired(Value), actual(BW))|OldUP]) :-
+    propertyExpectation(_, bandwidth, larger, soft, Value, _, From, To), minBW(Placement, From, To, BW),
     BW < Value.
