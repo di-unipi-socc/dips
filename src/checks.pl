@@ -10,20 +10,15 @@ chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- var(From), nonvar
 chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), nonvar(To), vnf(From, FromAff, _), vnf(To, ToAff, _), addedFromTo(Chain, (From, FromAff), (To, ToAff), F, NewChain).
 
 % NON-CHANGING PROPERTIES
-checkProperty(P, Placement, OldUP, OldUP) :-
-    propertyExpectation(_, P, smaller, _, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), 
+checkProperty(latency, Placement, OldUP, OldUP) :-
+    propertyExpectation(_, latency, smaller, _, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat =< Value.
-checkProperty(P, Placement, OldUP, [(P, desired(Value), actual(Lat))|OldUP]) :-
-    propertyExpectation(_, P, smaller, soft, Value, _, From, To),
-    getLatency(Placement, From, To, Lat), 
+checkProperty(latency, Placement, OldUP, [(latency, desired(Value), actual(Lat))|OldUP]) :-
+    propertyExpectation(_, latency, smaller, soft, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat > Value.
-
-checkProperty(P, Placement, OldUP, OldUP) :-
-    propertyExpectation(_, P, larger, _, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), 
+checkProperty(bandwidth, Placement, OldUP, OldUP) :-
+    propertyExpectation(_, bandwidth, larger, _, Value, _, From, To), minBW(Placement, From, To, BW),
     BW >= Value.
-checkProperty(P, Placement, OldUP, [(P, desired(Value), actual(BW))|OldUP]) :-
-    propertyExpectation(_, P, larger, soft, Value, _, From, To),
-    getBandwidth(Placement, From, To, BW), 
+checkProperty(bandwidth, Placement, OldUP, [(bandwidth, desired(Value), actual(BW))|OldUP]) :-
+    propertyExpectation(_, bandwidth, larger, soft, Value, _, From, To), minBW(Placement, From, To, BW),
     BW < Value.
