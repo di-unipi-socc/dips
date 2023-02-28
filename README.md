@@ -44,10 +44,9 @@
     - `Placement` is the placement of the VNF chain, and
     - `UP` is the list of unsatisfied properties.
 
-    `UP` is also a list of tuples, where each tuple is of the form `(ConditionId, Property, Desired, Actual)`: 
-    - `ConditionId` is the unique ID of the condition that is not satisfied, 
-    - for the associated `Property`. 
-    - `Desired` is the desired value for that condition, so 
+    `UP` is also a list of tuples, where each tuple is of the form `(Property, Desired, Actual)`: 
+    - `Property` that is not satisfied, 
+    - `Desired` is the desired value for that property, and
     - `Actual` is the actual value obtained by the respective placement.
 
 ## Output Example &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/3488/3488340.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/3488/3488804.png"></picture>
