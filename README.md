@@ -53,13 +53,13 @@
 ## Output Example &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/3488/3488340.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/3488/3488804.png"></picture>
 
 ```prolog
-Output = [(0, [on(logVF, s, coolCloud), on(encVF, s, hEdge), on(edgeGamingVF, m, node42), on(encVF, s, tEdge), on(cloudGamingVF, s, coolCloud)], []),
-          (0, [on(logVF, s, coolCloud), on(encVF, s, hEdge), on(edgeGamingVF, m, node42), on(encVF, s, tEdge), on(cloudGamingVF, s, coolCloud2)], []), 
-          …
-          (0, [on(logVF, s, coolCloud2), on(encVF, s, tEdge), on(edgeGamingVF, m, node42), on(encVF, s, tEdge), on(cloudGamingVF, s, coolCloud2)], []), 
-          (2, [on(logVF, s, coolCloud), on(encVF, s, hEdge), on(edgeGamingVF, m, hEdge), on(encVF, s, hEdge), on(cloudGamingVF, s, coolCloud)], 
-                [(cLat, latency, desired(50), actual(122)), (cBW, bandwidth, desired(30), actual(20))])].
-
+Output = [(0, [on(encVF, s, gateway), on(edgeGamingVF, l, edge1), on(encVF, s, edge1), on(logVF, s, cloud1), on(cloudGamingVF, m, cloud1)], []), 
+		  (0, [on(encVF, s, gateway), on(edgeGamingVF, l, edge1), on(encVF, s, edge1), on(logVF, s, cloud1), on(cloudGamingVF, m, cloud2)], []), 
+		…
+		  (1, [on(encVF, s, gateway), on(edgeGamingVF, l, edge2), on(encVF, s, gateway), on(logVF, s, cloud2), on(cloudGamingVF, m, cloud1)], 
+          [(bandwidth, desired(100), actual(30))]), 
+		  (1, [on(encVF, s, gateway), on(edgeGamingVF, l, edge2), on(encVF, s, gateway), on(logVF, s, cloud2), on(cloudGamingVF, m, cloud2)], 
+          [(bandwidth, desired(100), actual(30))])].
 ```
 
 ## Contributors &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/3369/3369157.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/3369/3369137.png"></picture>
