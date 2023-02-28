@@ -34,10 +34,10 @@
 
 3. Execute the main query:
     ```prolog
-    :- dips(IntentId, NumberOfUsers, Output).
+    :- dips(StakeHolder, IntentId, NumberOfUsers, Output).
     ```
 
-    where `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that will be served by the VNF chain, and `Output` is the output of the reasoner.
+    where `StakeHolder` is the unique ID of the stakeholder who requested the intent, `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that will be served by the VNF chain, and `Output` is the output of the reasoner.
 
     `Output` is a list of tuples, where each tuple is of the form `(L, Placement, UP)`:
     - `L` is the number of unsatisfied properties (i.e. the number of properties that do not meet the expectations) 
