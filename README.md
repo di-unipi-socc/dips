@@ -53,11 +53,11 @@
 
 ```prolog
 Output = [(0, [on(encVF, s, gateway), on(edgeGamingVF, l, edge1), on(encVF, s, edge1), on(logVF, s, cloud1), on(cloudGamingVF, m, cloud1)], []), 
-		  (0, [on(encVF, s, gateway), on(edgeGamingVF, l, edge1), on(encVF, s, edge1), on(logVF, s, cloud1), on(cloudGamingVF, m, cloud2)], []), 
-		…
-		  (1, [on(encVF, s, gateway), on(edgeGamingVF, l, edge2), on(encVF, s, gateway), on(logVF, s, cloud2), on(cloudGamingVF, m, cloud1)], 
+ 	  (0, [on(encVF, s, gateway), on(edgeGamingVF, l, edge1), on(encVF, s, edge1), on(logVF, s, cloud1), on(cloudGamingVF, m, cloud2)], []), 
+	  …
+	  (1, [on(encVF, s, gateway), on(edgeGamingVF, l, edge2), on(encVF, s, gateway), on(logVF, s, cloud2), on(cloudGamingVF, m, cloud1)], 
           [(bandwidth, desired(100), actual(30))]), 
-		  (1, [on(encVF, s, gateway), on(edgeGamingVF, l, edge2), on(encVF, s, gateway), on(logVF, s, cloud2), on(cloudGamingVF, m, cloud2)], 
+	  (1, [on(encVF, s, gateway), on(edgeGamingVF, l, edge2), on(encVF, s, gateway), on(logVF, s, cloud2), on(cloudGamingVF, m, cloud2)], 
           [(bandwidth, desired(100), actual(30))])].
 ```
 
