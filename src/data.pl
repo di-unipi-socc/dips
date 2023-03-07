@@ -15,16 +15,16 @@ propertyExpectation(gsIntent, latency, smaller, hard, 50, ms, gateway, edgeGamin
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
-% target(TargetId, [VNFs])
+% target(TargetId, Chain).
 target(gamingService, [edgeGamingVF, cloudGamingVF]).
 
-% vnf(Id, Affinity, ProcessingTime)
+% vnf(Id, Affinity, ProcessingTime).
 vnf(edgeGamingVF, edge, 15).
 vnf(cloudGamingVF, cloud, 8).
 vnf(encVF, edge, 2).
 vnf(logVF, cloud, 1).
 
-% vnfXUser(Id, Version, UsersRange, HWReqs)
+% vnfXUser(Id, Version, UsersRange, HWReqs).
 vnfXUser(edgeGamingVF, s, (1,100), 5).
 vnfXUser(edgeGamingVF, m, (101,1000), 10).
 vnfXUser(edgeGamingVF, l, (1001,inf), 15).
@@ -34,7 +34,7 @@ vnfXUser(cloudGamingVF, l, (10001, inf), 25).
 vnfXUser(encVF, s, (0, inf), 2).
 vnfXUser(logVF, s, (0, inf), 1).
 
-% changingProperty(Property). 
+% changingProperty(Property, VF). 
 %% changing properties defined according to priority order
 changingProperty(logging, logVF).
 changingProperty(privacy, encVF).
@@ -43,15 +43,14 @@ changingProperty(caching, cacheVF).
 changingProperty(compression, compVF).
 changingProperty(encoding, encodeVF).
 
-% node(Id, Type, HWCaps)
+% node(Id, Type, HWCaps).
 node(gateway, edge, 10).
 node(edge1, edge, 18).
 node(edge2, edge, 25).
 node(cloud1, cloud, 100).
 node(cloud2, cloud, 150).
 
-% link(From, To, FeatLat, FeatBw)
-
+% link(From, To, FeatLat, FeatBw).
 link(gateway, edge1, 5, 30).
 link(gateway, edge2, 35, 30).
 link(gateway, cloud1, 135, 30).
