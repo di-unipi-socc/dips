@@ -15,9 +15,9 @@
 
  - [`dips.pl`](dips.pl) contains the main logic of the reasoner.
 
- - [`src/data.pl`](src/data.pl) contains all the _facts_ an intent is made of (e.g. _property expectations_, _conditions_), and also the description of each VNF to be placed.
+ - [`src/data.pl`](src/data.pl) contains all the _property expectations_ an intent is made of and also the description of each VNF to be placed.
 
- - [`src/checks.pl`](src/checks.pl) contains the predicates that check the _conditions_ of the intent, both at the assembly (associated to _changing probperties_) and placement phases (_non-changing properties_).
+ - [`src/checks.pl`](src/checks.pl) contains the predicates that check the intent _properties_, both at the assembly (associated to _changing properties_) and placement phases (_non-changing properties_).
 
  - [`src/utils.pl`](src/utils.pl) contains a set of useful predicates to _(i)_ assemble the VNF chain, and _(ii)_ compute QoS metrics during the placement phase.
 
