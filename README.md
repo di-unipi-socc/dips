@@ -6,6 +6,7 @@
 </picture>
 
 ```bash
+.
 ├── dips.pl
 └── src
     ├── checks.pl
