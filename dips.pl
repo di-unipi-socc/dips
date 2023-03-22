@@ -9,7 +9,7 @@ dips(StakeHolder, IntentId, NUsers, Targets) :-
 
 delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :- 
     chainForIntent(StakeHolder, IntentId, Chain),
-    dimensionedChain(Chain, NUsers, [], DimChain),
+    dimensionedChain(Chain, NUsers, DimChain),
     findall(P, propertyExpectation(IntentId, P,_,_,_,_,_,_), NCP),
     placedChain(DimChain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
 
@@ -33,6 +33,7 @@ completedChain(_, [], Chain, Chain).
 
 %% PLACEMENT %%
 
+dimensionedChain(Chain, NUsers, DimChain) :- dimensionedChain(Chain, NUsers, [], DimChain).
 dimensionedChain([(F,A)|Zs], U, OldC, NewC) :- vnfXUser(F, D, (L, H), _), between(L, H, U),  dimensionedChain(Zs, U, [(F, A, D)|OldC], NewC).
 dimensionedChain([], _, Chain, Chain).
 
