@@ -1,4 +1,4 @@
-:-['src/data.pl', 'src/checks.pl'].
+:-['src/data.pl', 'src/properties.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 32 000 000 000).
@@ -18,12 +18,12 @@ delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :-
 chainForIntent(StakeHolder, IntentId, Chain) :-
     intent(StakeHolder, IntentId, TargetId), 
     target(TargetId, ServiceChain), 
-    affinitisedChain(ServiceChain, AffServiceChain),
+    layeredChain(ServiceChain, LChain),
     findall((P,F), (changingProperty(P,F), propertyExpectation(IntentId, P, _, _, _)), Properties),
-    completedChain(IntentId, Properties, AffServiceChain, Chain).
+    completedChain(IntentId, Properties, LChain, Chain).
 
-affinitisedChain([F|Fs], [(F,A)|NewFs]) :- vnf(F, A, _), affinitisedChain(Fs, NewFs).
-affinitisedChain([], []).
+layeredChain([F|Fs], [(F,A)|NewFs]) :- vnf(F, A, _), layeredChain(Fs, NewFs).
+layeredChain([], []).
 
 completedChain(IntentId, [(P,F)|Ps], Chain, NewChain) :- 
     propertyExpectation(IntentId, P, Bound, From, To), vnf(F, A, _),
