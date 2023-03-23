@@ -40,8 +40,8 @@ dimensionedChain([], _, Chain, Chain).
 placedChain(Chain, NCP, NewP, UP) :-
     placedChain(Chain, [], NewP),
     checkPlacement(NCP, NewP, UP).
-placedChain([(F, A, D)|VNFs], OldP, NewP) :-
-    vnfXUser(F, D, _, HWReqs), node(N, A, HWCaps),  
+placedChain([(F, L, D)|VNFs], OldP, NewP) :-
+    vnfXUser(F, D, _, HWReqs), node(N, L, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     placedChain(VNFs, [on(F, D, N)|OldP], NewP).
 placedChain([], P, P).
