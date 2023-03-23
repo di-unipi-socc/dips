@@ -39,7 +39,7 @@ dimensionedChain([], _, Chain, Chain).
 
 placedChain(Chain, NCP, NewP, UP) :-
     placedChain(Chain, [], NewP),
-    checkPlacement(NCP, NewP, [], UP).
+    checkPlacement(NCP, NewP, UP).
 placedChain([(F, A, D)|VNFs], OldP, NewP) :-
     vnfXUser(F, D, _, HWReqs), node(N, A, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
@@ -50,6 +50,7 @@ hwOK(N, HWReqs, HWCaps, Placement) :- % hw resources are cumulative
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),
     HWSum + HWReqs =< HWCaps.
 
+checkPlacement(NCP, Placement, UP) :- checkPlacement(NCP, Placement, [], UP).
 checkPlacement([P|Ps], Placement, OldUP, NewUP) :- 
     checkProperty(P, Placement, OldUP, TmpUP), 
     checkPlacement(Ps, Placement, TmpUP, NewUP).
