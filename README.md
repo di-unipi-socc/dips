@@ -18,7 +18,7 @@
 
  - [`src/data.pl`](src/data.pl) contains all the _property expectations_ an intent is made of and also the description of each VNF to be placed.
 
- - [`src/checks.pl`](src/checks.pl) contains the predicates that check the intent _properties_, both at the assembly (associated to _changing properties_) and placement phases (_non-changing properties_).
+ - [`src/properties.pl`](src/properties.pl) contains the predicates that check the intent _properties_, both at the assembly (associated to _changing properties_) and placement phases (_non-changing properties_).
 
  - [`src/utils.pl`](src/utils.pl) contains a set of useful predicates to _(i)_ assemble the VNF chain, and _(ii)_ compute QoS metrics during the placement phase.
 
