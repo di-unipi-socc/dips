@@ -65,10 +65,10 @@ Output = [(0, [on(encVF, s, gateway), on(edgeGamingVF, l, edge1), on(encVF, s, e
 ## Contributors &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/3369/3369157.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/3369/3369137.png"></picture>
 
  - [Jacopo Massa](https://pages.di.unipi.it/massa) (_corresponding author_)
- - [Stefano Forti](http://pages.di.unipi.it/forti)
- - [Federica Paganelli](http://pages.di.unipi.it/paganelli)
- - [Patrizio Dazzi](http://pages.di.unipi.it/dazzi)
- - [Antonio Brogi](http://pages.di.unipi.it/brogi)
+ - [Stefano Forti](https://pages.di.unipi.it/forti)
+ - [Federica Paganelli](https://pages.di.unipi.it/paganelli)
+ - [Patrizio Dazzi](https://pages.di.unipi.it/dazzi)
+ - [Antonio Brogi](https://pages.di.unipi.it/brogi)
 
 
 
