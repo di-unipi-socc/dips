@@ -2,6 +2,10 @@
     <source media="(prefers-color-scheme: dark)" srcset="img/logo-dark.png"><img width=450 alt="dips-logo" src="img/logo.png"/>
 </picture>
 
+**DIPS** is Prolog tool that exploits a declarative methodology for modelling and processing VNF-based service provisioning intents. 
+
+DIPS enables users (i.e. application providers) to sepcify their desired VNF chain requirements in a high-level language that captures teir intent, such as the type of service to be provided, possible location constraints (e.g. at the _edge_), Quality of Service (QoS) (e.g. _latency_ and _bandwidth_), but also non-functional requirements (e.g. _privacy_ and _logging_). DIPS leverages Prolog inference to translate intents into provisioning specifications.
+
 ## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
 </picture>
 
