@@ -71,4 +71,4 @@ link(cloud2, gateway, 125, 30).
 link(cloud2, edge1, 120, 120).
 link(cloud2, edge2, 125, 80).
 link(cloud2, cloud1, 10, 1000).
-link(N, N, 0, inf). % no latency and infinite bandwdith on self-links
+link(N, N, 0, 100000). % no latency and infinite bandwdith on self-links
