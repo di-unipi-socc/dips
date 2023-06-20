@@ -2,9 +2,9 @@
     <source media="(prefers-color-scheme: dark)" srcset="img/logo-dark.png"><img width=450 alt="dips-logo" src="img/logo.png"/>
 </picture>
 
-**DIPS** is Prolog tool that exploits a declarative methodology for modelling and processing VNF-based service provisioning intents. 
+**DIPS** is a Prolog tool that exploits a declarative methodology for modelling and processing VNF-based service provisioning intents. 
 
-DIPS enables users (i.e. application providers) to sepcify their desired VNF chain requirements in a high-level language that captures teir intent, such as the type of service to be provided, possible location constraints (e.g. at the _edge_), Quality of Service (QoS) (e.g. _latency_ and _bandwidth_), but also non-functional requirements (e.g. _privacy_ and _logging_). DIPS leverages Prolog inference to translate intents into provisioning specifications.
+DIPS enables users (i.e. application providers) to specify their desired VNF chain requirements in a high-level language that captures their intent, such as the type of service to be provided, possible location constraints (e.g. at the _edge_), Quality of Service (QoS) (e.g. _latency_ and _bandwidth_), but also non-functional requirements (e.g. _privacy_ and _logging_). DIPS leverages Prolog inference to translate intents into provisioning specifications.
 
 ## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
 </picture>
@@ -32,7 +32,7 @@ DIPS enables users (i.e. application providers) to sepcify their desired VNF cha
 
 1. Download or clone this repository. Make sure you have [SWI-Prolog](https://www.swi-prolog.org/download/stable) installed.
 
-2. In the project folder, run the following command on terminal, to access the SWI-Prolog console and load the main file:
+2. In the project folder, run the following command on the command line, to access the SWI-Prolog console and load the main file:
     ```console 
     swipl dips.pl
     ```
@@ -42,10 +42,10 @@ DIPS enables users (i.e. application providers) to sepcify their desired VNF cha
     :- dips(StakeHolder, IntentId, NumberOfUsers, Output).
     ```
 
-    where `StakeHolder` is the unique ID of the stakeholder who requested the intent, `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that will be served by the VNF chain, and `Output` is the output of the reasoner.
+    where `StakeHolder` is the unique ID of the stakeholder who requested the intent, `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that the VNF chain will serve, and `Output` is the output of the reasoner.
 
     `Output` is a list of tuples, where each tuple is of the form `(L, Placement, UP)`:
-    - `L` is the number of unsatisfied properties (i.e. the number of properties that do not meet the expectations) 
+    - `L` is the number of unsatisfied properties (i.e. the number of properties that do not meet expectations) 
     - `Placement` is the placement of the VNF chain, and
     - `UP` is the list of unsatisfied properties.
 
