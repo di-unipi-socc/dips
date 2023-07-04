@@ -7,10 +7,12 @@ target(streamingService, [storageVF, encodeVF, decodeVF]).
 
 % TODO: 
 % - add ids to propertyExpectation's 
+% - define bandwidth conflicts
+
+
 
 % conflicts(X,[]) :- % only fixable conflicts
 % conflicts(_, [C|Cs]) :- % unfeasible, return to user
-
 conflicts(ConflictsAndSolutions, UnfeasibleConflicts) :-
     findall((C,S), conflict(C, S), ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts).
@@ -35,7 +37,7 @@ conflict((PId1,PId2), Solution) :-
 % that encodeVF runs on the same server as storageVF. Conflict.
 % Solution: inform user? or just fail?
 propertyExpectation(aff1, int1, affinity, dedicated, hard, _, _, storageVF, _).
-propertyExpectation(aff2, int1, affinity, same, hard, _, _, storageVF, encodeVF).
+%propertyExpectation(aff2, int1, affinity, same, hard, _, _, storageVF, encodeVF).
 
 
 %%%%% Example 2 %%%%%

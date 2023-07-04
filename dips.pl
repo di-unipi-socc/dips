@@ -1,4 +1,4 @@
-:-['src/data.pl', 'src/properties.pl'].
+:-['src/conflict.pl', 'src/properties.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 64 000 000 000).
@@ -10,9 +10,18 @@ dips(StakeHolder, IntentId, NUsers, Targets) :-
 delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :- 
     chainForIntent(StakeHolder, IntentId, Chain),
     dimensionedChain(Chain, NUsers, DimChain),
+    conflicts(ConflictsAndSolutions, UnfeasibleConflicts), (dif(UnfeasibleConflicts,[]) -> fail; true),
     findall(P, propertyExpectation(IntentId, P,_,_,_,_,_,_), NCP),
-    placedChain(DimChain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
+    filterProp(ConflictsAndSolutions, NCP, FilteredNCP), writeln(FilteredNCP).
+    % placedChain(DimChain, FilteredNCP, Placement, Unsatisfied), length(Unsatisfied, L).
 
+filterProp([((_,_),Op,L)|Cs], NCP, FNCP) :- 
+    Op = remove, subtract(NCP, L, NCP1), 
+    filterProp(Cs, NCP1, FNCP).
+filterProp([((_,_),Op,_)|Cs], NCP, FNCP) :-
+    dif(Op, remove), 
+    filterProp(Cs, NCP, FNCP).
+filterProp([], NCP, NCP).
 %% ASSEMBLY %%
 
 chainForIntent(StakeHolder, IntentId, Chain) :-
