@@ -12,14 +12,14 @@ chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), non
 
 % NON-CHANGING PROPERTIES
 checkProperty(latency, Placement, OldUP, OldUP) :-
-    propertyExpectation(_, latency, smaller, _, Value, _, From, To), pathLat(Placement, From, To, Lat), 
+    propertyExpectation(_, _, latency, smaller, _, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat =< Value.
 checkProperty(latency, Placement, OldUP, [(latency, desired(Value), actual(Lat))|OldUP]) :-
-    propertyExpectation(_, latency, smaller, soft, Value, _, From, To), pathLat(Placement, From, To, Lat), 
+    propertyExpectation(_, _, latency, smaller, soft, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat > Value.
 checkProperty(bandwidth, Placement, OldUP, OldUP) :-
-    propertyExpectation(_, bandwidth, larger, _, Value, _, From, To), minBW(Placement, From, To, BW),
+    propertyExpectation(_, _, bandwidth, larger, _, Value, _, From, To), minBW(Placement, From, To, BW),
     BW >= Value.
 checkProperty(bandwidth, Placement, OldUP, [(bandwidth, desired(Value), actual(BW))|OldUP]) :-
-    propertyExpectation(_, bandwidth, larger, soft, Value, _, From, To), minBW(Placement, From, To, BW),
+    propertyExpectation(_, _, bandwidth, larger, soft, Value, _, From, To), minBW(Placement, From, To, BW),
     BW < Value.

@@ -1,7 +1,7 @@
-:-['src/conflict.pl', 'src/properties.pl'].
+:-['src/data.pl', 'src/conflict.pl', 'src/properties.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
-:- set_prolog_flag(stack_limit, 64 000 000 000).
+:- set_prolog_flag(stack_limit, 128 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
 dips(StakeHolder, IntentId, NUsers, Targets) :-
@@ -10,32 +10,37 @@ dips(StakeHolder, IntentId, NUsers, Targets) :-
 delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :- 
     chainForIntent(StakeHolder, IntentId, Chain),
     dimensionedChain(Chain, NUsers, DimChain),
-    conflicts(ConflictsAndSolutions, UnfeasibleConflicts), (dif(UnfeasibleConflicts,[]) -> fail; true),
-    findall(P, propertyExpectation(IntentId, P,_,_,_,_,_,_), NCP),
-    filterProp(ConflictsAndSolutions, NCP, FilteredNCP), writeln(FilteredNCP).
-    % placedChain(DimChain, FilteredNCP, Placement, Unsatisfied), length(Unsatisfied, L).
+    filterProperties(IntentId, NCP),
+    % findall(P, propertyExpectation(_, IntentId, P,_,_,_,_,_,_), NCP), % all NCP
+    placedChain(DimChain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
 
-filterProp([((_,_),Op,L)|Cs], NCP, FNCP) :- 
+filterProperties(IntentId, FilteredNCP) :-
+    conflicts(ConflictsAndSolutions, UnfeasibleConflicts), 
+    (dif(UnfeasibleConflicts,[]) -> writeln(UnfeasibleConflicts), fail; true), % fail if any unfeasible conflict
+    findall(P, propertyExpectation(_, IntentId, P,_,_,_,_,_,_), NCP),
+    filterProperties(ConflictsAndSolutions, NCP, FilteredNCP).
+
+filterProperties([((_,_),Op,L)|Cs], NCP, FNCP) :- 
     Op = remove, subtract(NCP, L, NCP1), 
-    filterProp(Cs, NCP1, FNCP).
-filterProp([((_,_),Op,_)|Cs], NCP, FNCP) :-
+    filterProperties(Cs, NCP1, FNCP).
+filterProperties([((_,_),Op,_)|Cs], NCP, FNCP) :-
     dif(Op, remove), 
-    filterProp(Cs, NCP, FNCP).
-filterProp([], NCP, NCP).
+    filterProperties(Cs, NCP, FNCP).
+filterProperties([], NCP, NCP).
 %% ASSEMBLY %%
 
 chainForIntent(StakeHolder, IntentId, Chain) :-
     intent(StakeHolder, IntentId, TargetId), 
     target(TargetId, ServiceChain), 
     layeredChain(ServiceChain, LChain),
-    findall((P,F), (changingProperty(P,F), propertyExpectation(IntentId, P, _, _, _)), Properties),
+    findall((P,F), (changingProperty(P,F), propertyExpectation(_, IntentId, P, _, _, _)), Properties),
     completedChain(IntentId, Properties, LChain, Chain).
 
 layeredChain([F|Fs], [(F,A)|NewFs]) :- vnf(F, A, _), layeredChain(Fs, NewFs).
 layeredChain([], []).
 
 completedChain(IntentId, [(P,F)|Ps], Chain, NewChain) :- 
-    propertyExpectation(IntentId, P, Bound, From, To), vnf(F, A, _),
+    propertyExpectation(_, IntentId, P, Bound, From, To), vnf(F, A, _),
     chainModifiedByProperty(P, Bound, From, To, (F,A), Chain, ModChain),
     completedChain(IntentId, Ps, ModChain, NewChain).
 completedChain(_, [], Chain, Chain).

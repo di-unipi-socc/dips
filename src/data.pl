@@ -5,13 +5,13 @@ intent(gameAppOp, gsIntent, gamingService).
 
 % Changing property
 % propertyExpectation(IntentId, Property, Bound, From/Before, To/After).
-propertyExpectation(gsIntent, privacy, edge, _, _).
-propertyExpectation(gsIntent, logging, cloud, cloudGamingVF, _).
+propertyExpectation(cp1, gsIntent, privacy, edge, _, _).
+propertyExpectation(cp2, gsIntent, logging, cloud, cloudGamingVF, _).
 
 % Non-changing property
 % propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
-propertyExpectation(gsIntent, bandwidth, larger, soft, 100, megabps, edgeGamingVF, cloudGamingVF).
-propertyExpectation(gsIntent, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
+propertyExpectation(bw1, gsIntent, bandwidth, larger, soft, 100, megabps, edgeGamingVF, cloudGamingVF).
+propertyExpectation(lat1, gsIntent, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
