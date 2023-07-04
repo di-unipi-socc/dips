@@ -1,5 +1,5 @@
 minBW(_, From, To, BW) :- node(From,_,_), node(To,_,_), link(From, To, _, BW). % node - node
-minBW([on(_,_,N)|Zs], From, To, BW) :- node(From,_,_), link(From, N, _, TmpBW), minBW2(Zs, To, TmpBW, BW). % node - VNF
+minBW([on(_,_,N)|Zs], From, To, BW) :- node(From,_,_), \+ node(To,_,_),  link(From, N, _, TmpBW), minBW2(Zs, To, TmpBW, BW). % node - VNF
 minBW(P, From, To, BW) :- minBW(P, From, To, inf, BW). % VNF - node / VNF - VNF
 
 minBW([on(X,_,_),Y|Zs], From, To, OldBW, NewBW) :- dif(X, From), minBW([Y|Zs], From, To, OldBW, NewBW).
@@ -11,7 +11,7 @@ minBW2([on(_,_,N)|_], To, OldBW, NewBW) :- link(N, To, _, BW), NewBW is min(OldB
 minBW2([on(To,_,_)|_], To, BW, BW). % To is a VNF
 
 pathLat(_, From, To, Lat) :- node(From, _, _), node(To,_,_), link(From, To, Lat, _).
-pathLat([on(F,_,N)|Zs], From, To, Lat) :- node(From,_,_), link(From, N, FeatLat, _), vnf(F,_,PTime), TmpLat is FeatLat + PTime, pathLat2(Zs, To, TmpLat, Lat). % node - VNF
+pathLat([on(F,_,N)|Zs], From, To, Lat) :- node(From,_,_), \+ node(To,_,_), link(From, N, FeatLat, _), vnf(F,_,PTime), TmpLat is FeatLat + PTime, pathLat2(Zs, To, TmpLat, Lat). % node - VNF
 pathLat(P, From, To, Lat) :- pathLat(P, From, To, 0, Lat). % VNF - node / VNF - VNF
 
 pathLat([on(X,_,_),Y|Zs], From, To, OldLat, NewLat) :- dif(X, From), pathLat([Y|Zs], From, To, OldLat, NewLat).
