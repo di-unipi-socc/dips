@@ -46,3 +46,5 @@ propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, 
 % Solution: inform user? or just fail?
 propertyExpectation(cp1, int1, caching, edge, encodeVF, decodeVF).
 propertyExpectation(hw1, int1, hardware, smaller, hard, 25, gb, _, _).
+
+%%%%% Example 6 %%%%%

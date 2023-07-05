@@ -1,10 +1,19 @@
+% TODO:
+% 
+:- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
+
 % conflicts(X,[]) :- % only fixable conflicts
 % conflicts(_, [C|Cs]) :- % unfeasible, return to user
-conflicts(ConflictsAndSolutions, UnfeasibleConflicts) :-
+conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts) :-
     findall((C,S), conflict(C, S), ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts).
 
 % --- General ---
+% too general(?):
+% - we can define "mydif/2"
+% - specialise the rules (e.g., latency/stddev)
+% - hierarchy of soft/soft properties (so on boundaries)
+
 conflict((PId1,PId2), Solution) :-
     propertyExpectation(PId1, I, Property, B1, hard, _, _, VF, _),
     propertyExpectation(PId2, I, Property, B2, soft, _, _, VF, _), dif(B1,B2),

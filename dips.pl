@@ -8,25 +8,27 @@ dips(StakeHolder, IntentId, NUsers, Targets) :-
     findall(T, delivery(StakeHolder, IntentId, NUsers, T), Ts), sort(Ts, Targets).
 
 delivery(StakeHolder, IntentId, NUsers, (L, Placement, Unsatisfied)) :- 
-    chainForIntent(StakeHolder, IntentId, Chain),
-    dimensionedChain(Chain, NUsers, DimChain),
-    filterProperties(IntentId, NCP),
-    % findall(P, propertyExpectation(_, IntentId, P,_,_,_,_,_,_), NCP), % all NCP
-    placedChain(DimChain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
+    modelling(StakeHolder, IntentId, NUsers, Chain),
+    conflictDetectionAndResolution(IntentId, NCP),
+    translation(Chain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
 
-filterProperties(IntentId, FilteredNCP) :-
-    conflicts(ConflictsAndSolutions, UnfeasibleConflicts), 
+modelling(StakeHolder, IntentId, NUsers, DimensionedChain) :-
+    chainForIntent(StakeHolder, IntentId, Chain),
+    dimensionedChain(Chain, NUsers, DimensionedChain).
+
+conflictDetectionAndResolution(IntentId, FilteredNCP) :-
+    conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts), 
     (dif(UnfeasibleConflicts,[]) -> writeln(UnfeasibleConflicts), fail; true), % fail if any unfeasible conflict
     findall(P, propertyExpectation(_, IntentId, P,_,_,_,_,_,_), NCP),
-    filterProperties(ConflictsAndSolutions, NCP, FilteredNCP).
+    conflictsResolution(ConflictsAndSolutions, NCP, FilteredNCP).
 
-filterProperties([((_,_),Op,L)|Cs], NCP, FNCP) :- 
-    Op = remove, subtract(NCP, L, NCP1), 
-    filterProperties(Cs, NCP1, FNCP).
-filterProperties([((_,_),Op,_)|Cs], NCP, FNCP) :-
+conflictsResolution([((_,_),remove,L)|Cs], NCP, FNCP) :- 
+    subtract(NCP, L, NCP1), 
+    conflictsResolution(Cs, NCP1, FNCP).
+conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :-
     dif(Op, remove), 
     filterProperties(Cs, NCP, FNCP).
-filterProperties([], NCP, NCP).
+conflictsResolution([], NCP, NCP).
 %% ASSEMBLY %%
 
 chainForIntent(StakeHolder, IntentId, Chain) :-
@@ -51,14 +53,14 @@ dimensionedChain(Chain, NUsers, DimChain) :- dimensionedChain(Chain, NUsers, [],
 dimensionedChain([(F,A)|Zs], U, OldC, NewC) :- vnfXUser(F, D, (L, H), _), between(L, H, U),  dimensionedChain(Zs, U, [(F, A, D)|OldC], NewC).
 dimensionedChain([], _, Chain, Chain).
 
-placedChain(Chain, NCP, NewP, UP) :-
-    placedChain(Chain, [], NewP),
+translation(Chain, NCP, NewP, UP) :-
+    translation(Chain, [], NewP),
     checkPlacement(NCP, NewP, UP).
-placedChain([(F, L, D)|VNFs], OldP, NewP) :-
+translation([(F, L, D)|VNFs], OldP, NewP) :-
     vnfXUser(F, D, _, HWReqs), node(N, L, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
-    placedChain(VNFs, [on(F, D, N)|OldP], NewP).
-placedChain([], P, P).
+    translation(VNFs, [on(F, D, N)|OldP], NewP).
+translation([], P, P).
 
 hwOK(N, HWReqs, HWCaps, Placement) :- % hw resources are cumulative
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),
