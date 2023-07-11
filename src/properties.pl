@@ -16,7 +16,7 @@ chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), non
 checkProperty(PId, Placement, OldUP, OldUP) :-
     propertyExpectation(PId, _, latency, smaller, _, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat =< Value.
-checkProperty(PId, Placement, OldUP, [(latency, desired(Value), actual(Lat))|OldUP]) :-
+checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(Lat))|OldUP]) :-
     propertyExpectation(PId, _, latency, smaller, soft, Value, _, From, To), pathLat(Placement, From, To, Lat), 
     Lat > Value.
 
@@ -24,27 +24,33 @@ checkProperty(PId, Placement, OldUP, [(latency, desired(Value), actual(Lat))|Old
 checkProperty(PId, Placement, OldUP, OldUP) :-
     propertyExpectation(PId, _, bandwidth, larger, _, Value, _, From, To), minBW(Placement, From, To, BW),
     BW >= Value.
-checkProperty(PId, Placement, OldUP, [(bandwidth, desired(Value), actual(BW))|OldUP]) :-
+checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(BW))|OldUP]) :-
     propertyExpectation(PId, _, bandwidth, larger, soft, Value, _, From, To), minBW(Placement, From, To, BW),
     BW < Value.
 
 % Node Affinity
 checkProperty(PId, Placement, OldUP, OldUP) :-
     propertyExpectation(PId, _, affinity, dedicated, _, _, _, V, _), 
-    member(on(V, N), Placement), \+ (member(on(V1, N), Placement), dif(V1, V)).
-    % findall(N, member(on(_, N), Placement), Nodes), length(Nodes, 1).
-checkProperty(PId, Placement, OldUP, [(affinity, desired(dedicated), actual(L)]) :-
+    member(on(V,_,N), Placement), \+ (member(on(V1,_,N), Placement), dif(V1, V)).
+checkProperty(PId, Placement, OldUP, [(PId, desired(dedicated), actual(L))|OldUP]) :-
     propertyExpectation(PId, _, affinity, dedicated, soft, _, _, V, _), 
-    member(on(V, N), Placement), findall(N, member(on(_, N), Placement), Nodes), 
-    length(Nodes, L), L > 1.
-    % member(on(V1, N), Placement), dif(V1, V).
+    member(on(V,_,N), Placement), findall(N, member(on(_,_,N), Placement), Nodes), length(Nodes, L), L > 1.
+    % maybe put in "actual" the list of other VFs on N? not only how many?
 
 checkProperty(PId, Placement, OldUP, OldUP) :-
     propertyExpectation(PId, _, affinity, same, _, _, _, V, V1), 
-    member(on(V, N), Placement), member(on(V1, N), Placement).
-checkProperty(PId, Placement, OldUP, [(affinity, desired(same), actual(N1,N2))|OldUP]) :-
+    member(on(V,_,N), Placement), member(on(V1,_,N), Placement).
+checkProperty(PId, Placement, OldUP, [(PId, desired(same), actual(N1,N2))|OldUP]) :-
     propertyExpectation(PId, _, affinity, same, soft, _, _, V, V1), 
-    member(on(V, N), Placement), member(on(V1, N1), Placement), dif(N, N2).
+    member(on(V,_,N), Placement), member(on(V1,_,N1), Placement), dif(N, N2).
 
-
+% TOTAL MAX HW LOAD
+checkProperty(PId, Placement, OldUP, OldUP) :-
+    propertyExpectation(PId, _, hardware, smaller, _, Value, _, _, _),
+    findall(HW, (member(on(VNF,V,_), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, TotHW),
+    TotHW =< Value.
+checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(TotHW))|OldUP]) :-
+    propertyExpectation(PId, _, hardware, smaller, soft, Value, _, _, _),
+    findall(HW, (member(on(VNF,V,_), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, TotHW),
+    TotHW > Value.
 

@@ -44,8 +44,8 @@ propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, 
 % that the overall hardware consumption of the chain is at most 25GB.
 % Caching requires 30GB alone. Conflict.
 % Solution: inform user? or just fail?
-propertyExpectation(cp1, int1, caching, edge, encodeVF, decodeVF).
-propertyExpectation(hw1, int1, hardware, smaller, hard, 25, gb, _, _).
+propertyExpectation(ch1, int1, caching, edge, encodeVF, decodeVF).
+propertyExpectation(hw1, int1, hardware, smaller, hard, 50, gb, _, _).
 
 vnf(storageVF, cloud, 10).
 vnf(encodeVF, edge, 5).
