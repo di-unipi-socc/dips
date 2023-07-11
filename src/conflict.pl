@@ -1,9 +1,7 @@
-% TODO:
-% 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 
-% conflicts(X,[]) :- % only fixable conflicts
-% conflicts(_, [C|Cs]) :- % unfeasible, return to user
+% conflictsDetection(X,[]) :- % only fixable conflicts
+% conflictsDetection(_, [C|Cs]) :- % unfeasible, return to user
 conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts) :-
     findall((C,S), conflict(C, S), ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts).

@@ -1,4 +1,4 @@
-:-['src/data.pl', 'src/conflict.pl', 'src/properties.pl'].
+:-['src/data2.pl', 'src/conflict.pl', 'src/properties.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 128 000 000 000).
