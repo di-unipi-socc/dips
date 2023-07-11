@@ -1,4 +1,5 @@
-:-['src/data2.pl', 'src/conflict.pl', 'src/properties.pl'].
+:-['data/infrastructures/infr5.pl', 'data/services/gamingService.pl'].
+:-['src/properties.pl', 'src/conflicts.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 128 000 000 000).
@@ -27,7 +28,7 @@ conflictsResolution([((_,_),remove,L)|Cs], NCP, FNCP) :-
     conflictsResolution(Cs, NCP1, FNCP).
 conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :-
     dif(Op, remove), 
-    filterProperties(Cs, NCP, FNCP).
+    conflictsResolution(Cs, NCP, FNCP).
 conflictsResolution([], NCP, NCP).
 %% ASSEMBLY %%
 
