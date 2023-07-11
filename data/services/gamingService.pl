@@ -31,8 +31,8 @@ vnfXUser(edgeGamingVF, l, (1001,inf), 15).
 vnfXUser(cloudGamingVF, s, (1, 1000), 8).
 vnfXUser(cloudGamingVF, m, (1001, 10000), 12).
 vnfXUser(cloudGamingVF, l, (10001, inf), 25).
-vnfXUser(encVF, s, (0, inf), 2).
-vnfXUser(logVF, s, (0, inf), 1).
+vnfXUser(encVF, s, (1, inf), 2).
+vnfXUser(logVF, s, (1, inf), 1).
 
 % changingProperty(Property, VF). 
 %% changing properties defined according to priority order

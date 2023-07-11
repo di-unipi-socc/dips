@@ -1,4 +1,4 @@
-:-['data/infrastructures/infr5.pl', 'data/services/gamingService.pl'].
+:-['data/infrastructures/infr5.pl', 'data/services/streamingService.pl'].
 :-['src/properties.pl', 'src/conflicts.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
@@ -18,10 +18,13 @@ modelling(StakeHolder, IntentId, NUsers, DimensionedChain) :-
     dimensionedChain(Chain, NUsers, DimensionedChain).
 
 conflictDetectionAndResolution(IntentId, FilteredNCP) :-
-    conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts), 
-    (dif(UnfeasibleConflicts,[]) -> writeln(UnfeasibleConflicts), fail; true), % fail if any unfeasible conflict
-    findall(P, propertyExpectation(_, IntentId, P,_,_,_,_,_,_), NCP),
+    conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts),
+    handleUnfeasibleConflicts(UnfeasibleConflicts),
+    findall(P, propertyExpectation(P, IntentId, _,_,_,_,_,_,_), NCP),
     conflictsResolution(ConflictsAndSolutions, NCP, FilteredNCP).
+
+handleUnfeasibleConflicts([]).
+handleUnfeasibleConflicts(UnfeasibleConflicts) :- dif(UnfeasibleConflicts, []), writeln(UnfeasibleConflicts), fail.
 
 conflictsResolution([((_,_),remove,L)|Cs], NCP, FNCP) :- 
     subtract(NCP, L, NCP1), 
@@ -30,6 +33,7 @@ conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :-
     dif(Op, remove), 
     conflictsResolution(Cs, NCP, FNCP).
 conflictsResolution([], NCP, NCP).
+
 %% ASSEMBLY %%
 
 chainForIntent(StakeHolder, IntentId, Chain) :-
