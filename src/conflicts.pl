@@ -3,7 +3,7 @@
 % conflictsDetection(X,[]) :- % only fixable conflicts
 % conflictsDetection(_, [C|Cs]) :- % unfeasible, return to user
 conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts) :-
-    findall((C,S), conflict(C, S), ConflictsAndSolutions),
+    findall((C,S), conflict(C, S), CSs), sort(CSs, ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts).
 
 % --- General ---
@@ -13,30 +13,38 @@ conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts) :-
 % - hierarchy of soft/soft properties (so on boundaries)
 
 conflict((PId1,PId2), Solution) :-
-    propertyExpectation(PId1, I, Property, B1, hard, _, _, VF, _),
-    propertyExpectation(PId2, I, Property, B2, soft, _, _, VF, _), dif(B1,B2),
+    propertyExpectation(PId1, I, Property, B1, hard, V1, _, VF, _),
+    propertyExpectation(PId2, I, Property, B2, soft, V2, _, VF, _),
+    dif(PId1, PId2), conflictingBounds((B1,V1),(B2,V2)),
     Solution = (remove, [PId2]).
 conflict((PId1,PId2), Solution) :-
-    propertyExpectation(PId1, I, Property, B1, hard, _, _, _, VF),
-    propertyExpectation(PId2, I, Property, B2, soft, _, _, _, VF), dif(B1,B2),
+    propertyExpectation(PId1, I, Property, B1, hard, V1, _, _, VF),
+    propertyExpectation(PId2, I, Property, B2, soft, V2, _, _, VF),
+    dif(PId1, PId2), conflictingBounds((B1,V1),(B2,V2)),
     Solution = (remove, [PId2]).
-
-% --- AFFINITY ---
-conflict((PId1,PId2), unfeasible) :-
-    propertyExpectation(PId1, I, affinity, dedicated, hard, _, _, VF, _),
-    propertyExpectation(PId2, I, affinity, same, hard, _, _, VF, _).
-
 conflict((PId1,PId2), Solution) :-
-    propertyExpectation(PId1, I, affinity, dedicated, soft, _, _, VF, _),
-    propertyExpectation(PId2, I, affinity, same, soft, _, _, VF, _),
+    propertyExpectation(PId1, I, Property, B1, soft, V1, _, VF, _),
+    propertyExpectation(PId2, I, Property, B2, soft, V2, _, VF, _),
+    dif(PId1, PId2), conflictingBounds((B1,V1),(B2,V2)),
     Solution = (remove, [PId1,PId2]).
-
-% --- BANDWIDTH ---
-conflict((PId1,PId2), unfeasible) :- % (e.g., BW > 50 & BW < 10)    
-    propertyExpectation(PId1, I, bandwidth, larger, hard, L, _, _, VF),
-    propertyExpectation(PId2, I, bandwidth, smaller, hard, U, _, _, VF), L > U.
-
 conflict((PId1,PId2), Solution) :-
-    propertyExpectation(PId1, I, bandwidth, larger, soft, L, _, _, VF),
-    propertyExpectation(PId2, I, bandwidth, smaller, soft, U, _, _, VF), L > U,
+    propertyExpectation(PId1, I, Property, B1, soft, V1, _, _, VF),
+    propertyExpectation(PId2, I, Property, B2, soft, V2, _, _, VF),
+    dif(PId1, PId2), conflictingBounds((B1,V1),(B2,V2)),
     Solution = (remove, [PId1,PId2]).
+conflict((PId1,PId2), unfeasible) :- 
+    propertyExpectation(PId1, I, Property, B1, hard, V1, _, VF, _),
+    propertyExpectation(PId2, I, Property, B2, hard, V2, _, VF, _),
+    dif(PId1, PId2), conflictingBounds((B1,V1),(B2,V2)).
+conflict((PId1,PId2), unfeasible) :- 
+    propertyExpectation(PId1, I, Property, B1, hard, V1, _, _, VF),
+    propertyExpectation(PId2, I, Property, B2, hard, V2, _, _, VF),
+    dif(PId1, PId2), conflictingBounds((B1,V1),(B2,V2)).
+
+% CONFLICTING BOUNDS
+conflictingBounds((greater, L), (smaller, U)) :- L > U.
+conflictingBounds((dedicated,_), (same,_)).
+% conflictingBounds((B, _), (B,_)).
+
+
+

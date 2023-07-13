@@ -2,7 +2,7 @@
 :-['src/properties.pl', 'src/conflicts.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
-:- set_prolog_flag(stack_limit, 128 000 000 000).
+:- set_prolog_flag(stack_limit, 64 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
 dips(StakeHolder, IntentId, NUsers, Targets) :-

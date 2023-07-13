@@ -22,10 +22,10 @@ checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(Lat))|OldUP])
 
 % Bandwidth
 checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, bandwidth, larger, _, Value, _, From, To), minBW(Placement, From, To, BW),
+    propertyExpectation(PId, _, bandwidth, greater, _, Value, _, From, To), minBW(Placement, From, To, BW),
     BW >= Value.
 checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(BW))|OldUP]) :-
-    propertyExpectation(PId, _, bandwidth, larger, soft, Value, _, From, To), minBW(Placement, From, To, BW),
+    propertyExpectation(PId, _, bandwidth, greater, soft, Value, _, From, To), minBW(Placement, From, To, BW),
     BW < Value.
 
 % Node Affinity
@@ -42,15 +42,31 @@ checkProperty(PId, Placement, OldUP, OldUP) :-
     member(on(V,_,N), Placement), member(on(V1,_,N), Placement).
 checkProperty(PId, Placement, OldUP, [(PId, desired(same), actual(N1,N2))|OldUP]) :-
     propertyExpectation(PId, _, affinity, same, soft, _, _, V, V1), 
-    member(on(V,_,N), Placement), member(on(V1,_,N1), Placement), dif(N, N2).
+    member(on(V,_,N1), Placement), member(on(V1,_,N2), Placement), dif(N1, N2).
 
-% TOTAL MAX HW LOAD
+% Tot HW usage
 checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, hardware, smaller, _, Value, _, _, _),
+    propertyExpectation(PId, _, totHW, smaller, _, Value, _, _, _),
     findall(HW, (member(on(VNF,V,_), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, TotHW),
     TotHW =< Value.
 checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(TotHW))|OldUP]) :-
-    propertyExpectation(PId, _, hardware, smaller, soft, Value, _, _, _),
+    propertyExpectation(PId, _, totHW, smaller, soft, Value, _, _, _),
     findall(HW, (member(on(VNF,V,_), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, TotHW),
     TotHW > Value.
 
+% Max Number of used nodes
+checkProperty(PId, Placement, OldUP, OldUP) :-
+    propertyExpectation(PId, _, nodes, smaller, _, Value, _, _, _),
+    distinctNodes(Placement, Nodes), length(Nodes, L), L =< Value.
+
+checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(L))|OldUP]) :-
+    propertyExpectation(PId, _, nodes, smaller, soft, Value, _, _, _),
+    distinctNodes(Placement, Nodes), length(Nodes, L), L > Value.
+
+% Avg hw load of nodes
+checkProperty(PId, Placement, OldUP, OldUP) :-
+    propertyExpectation(PId, _, avgHW, smaller, _, Value, _, _, _),
+    hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW), AvgHW =< Value.
+checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(AvgHW))|OldUP]) :-
+    propertyExpectation(PId, _, avgHW, smaller, soft, Value, _, _, _),
+    hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW), AvgHW > Value.

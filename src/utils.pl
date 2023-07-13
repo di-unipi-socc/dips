@@ -1,3 +1,5 @@
+:- ['allocation.pl'].
+
 minBW(_, From, To, BW) :- node(From,_,_), node(To,_,_), link(From, To, _, BW). % node - node
 minBW([on(_,_,N)|Zs], From, To, BW) :- node(From,_,_), \+ node(To,_,_),  link(From, N, _, TmpBW), minBW2(Zs, To, TmpBW, BW). % node - VNF
 minBW(P, From, To, BW) :- minBW(P, From, To, inf, BW). % VNF - node / VNF - VNF
@@ -48,3 +50,5 @@ addedBefore([], _, _, []).
 addedAfter([After|Zs], After, G, [After, G|Zs]) :- addedAfter(Zs, After, G, Zs).
 addedAfter([X|Zs], After, G, [X|NewZs]) :- dif(X,After), addedAfter(Zs, After, G, NewZs).
 addedAfter([], _, _, []).
+
+distinctNodes(P, Ns) :- findall(N, member(on(_,_,N), P), Ms), sort(Ms, Ns).

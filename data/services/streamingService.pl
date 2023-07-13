@@ -29,14 +29,14 @@ propertyExpectation(aff4, int1, affinity, dedicated, soft, _, _, storageVF, _). 
 % The intent requires that end-to-end bandwidth is at least 50Mbps AND
 % that bandwidth between encodeVF and decodeVF is at most 10Mbps. Conflict.
 % Solution: inform user? or just fail?
-propertyExpectation(bw1, int1, bandwidth, larger, hard, 50, megabps, storageVF, decodeVF).
+propertyExpectation(bw1, int1, bandwidth, greater, hard, 50, megabps, storageVF, decodeVF).
 %propertyExpectation(bw2, int1, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
 
 %%%%% Example 4 %%%%%
 % The intent requires possibly that end-to-end bandwidth is at least 50Mbps AND
 % that possibly bandwidth between encodeVF and decodeVF is at most 10Mbps. Conflict.
 % Solution: ignore both as they are soft. Inform user?
-propertyExpectation(bw3, int1, bandwidth, larger, soft, 50, megabps, storageVF, decodeVF).
+% propertyExpectation(bw3, int1, bandwidth, greater, hard, 50, megabps, storageVF, decodeVF).
 propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, decodeVF).
 
 %%%%% Example 5 %%%%%
@@ -45,7 +45,7 @@ propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, 
 % Caching requires 30GB alone. Conflict.
 % Solution: inform user? or just fail?
 propertyExpectation(ch1, int1, caching, edge, encodeVF, decodeVF).
-propertyExpectation(hw1, int1, hardware, smaller, hard, 50, gb, _, _).
+propertyExpectation(hw1, int1, totHW, smaller, hard, 50, gb, _, _).
 
 vnf(storageVF, cloud, 10).
 vnf(encodeVF, edge, 5).
