@@ -1,10 +1,23 @@
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 
-% conflictsDetection(X,[]) :- % only fixable conflicts
-% conflictsDetection(_, [C|Cs]) :- % unfeasible, return to user
-conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts) :-
+% Detection
+conflictsDetection(ConflictsAndSolutions) :-
     findall((C,S), conflict(C, S), CSs), sort(CSs, ConflictsAndSolutions),
-    findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts).
+    findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts),
+    handleUnfeasibleConflicts(UnfeasibleConflicts).
+
+% Resolution (based on action)
+conflictsResolution([((_,_),remove,L)|Cs], NCP, FNCP) :- 
+    subtract(NCP, L, NCP1), 
+    conflictsResolution(Cs, NCP1, FNCP).
+conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :-
+    dif(Op, remove), 
+    conflictsResolution(Cs, NCP, FNCP).
+conflictsResolution([], NCP, NCP).
+
+handleUnfeasibleConflicts(UnfeasibleConflicts) :- 
+    dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts), fail.
+handleUnfeasibleConflicts([]).
 
 % --- General "intra"-property conflicts ---
 conflict((PId1,PId2), Solution) :-

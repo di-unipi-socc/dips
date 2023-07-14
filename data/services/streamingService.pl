@@ -17,7 +17,7 @@ propertyExpectation(aff1, int1, affinity, dedicated, hard, _, _, storageVF, _).
 % The intent requires that storageVF run on a dedicated server AND
 % that encodeVF *possibly* runs on the same server as storageVF. Conflict.
 % Solution: ignore nodeAffinity as it is soft (shadowing). Inform user?
-propertyExpectation(aff3, int1, affinity, same, soft, _, _, storageVF, encodeVF). % conflict with aff1
+propertyExpectation(aff3, int1, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
 
 %%%%% Example 3 %%%%%
 % The intent requires that storageVF run on a dedicated server AND

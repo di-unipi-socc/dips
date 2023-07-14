@@ -18,21 +18,9 @@ modelling(StakeHolder, IntentId, NUsers, DimensionedChain) :-
     dimensionedChain(Chain, NUsers, DimensionedChain).
 
 conflictDetectionAndResolution(IntentId, FilteredNCP) :-
-    conflictsDetection(ConflictsAndSolutions, UnfeasibleConflicts),
-    handleUnfeasibleConflicts(UnfeasibleConflicts),
+    conflictsDetection(ConflictsAndSolutions), % if any conflict is unfeasible, fails
     findall(P, propertyExpectation(P, IntentId, _,_,_,_,_,_,_), NCP),
     conflictsResolution(ConflictsAndSolutions, NCP, FilteredNCP).
-
-handleUnfeasibleConflicts([]).
-handleUnfeasibleConflicts(UnfeasibleConflicts) :- dif(UnfeasibleConflicts, []), writeln(UnfeasibleConflicts), fail.
-
-conflictsResolution([((_,_),remove,L)|Cs], NCP, FNCP) :- 
-    subtract(NCP, L, NCP1), 
-    conflictsResolution(Cs, NCP1, FNCP).
-conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :-
-    dif(Op, remove), 
-    conflictsResolution(Cs, NCP, FNCP).
-conflictsResolution([], NCP, NCP).
 
 %% ASSEMBLY %%
 
