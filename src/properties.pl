@@ -12,30 +12,13 @@ chainModifiedByProperty(_, _, From, To, F, Chain, NewChain) :- nonvar(From), non
 
 % NON-CHANGING PROPERTIES
 
-% Latency
-checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, latency, smaller, _, Value, _, From, To), pathLat(Placement, From, To, Lat), 
-    Lat =< Value.
-checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(Lat))|OldUP]) :-
-    propertyExpectation(PId, _, latency, smaller, soft, Value, _, From, To), pathLat(Placement, From, To, Lat), 
-    Lat > Value.
-
-% Bandwidth
-checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, bandwidth, greater, _, Value, _, From, To), minBW(Placement, From, To, BW),
-    BW >= Value.
-checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(BW))|OldUP]) :-
-    propertyExpectation(PId, _, bandwidth, greater, soft, Value, _, From, To), minBW(Placement, From, To, BW),
-    BW < Value.
-
-% Node Affinity
+% Node Affinity (maybe put in "actual" the list of other VFs on N? not only how many?)
 checkProperty(PId, Placement, OldUP, OldUP) :-
     propertyExpectation(PId, _, affinity, dedicated, _, _, _, V, _), 
     member(on(V,_,N), Placement), \+ (member(on(V1,_,N), Placement), dif(V1, V)).
 checkProperty(PId, Placement, OldUP, [(PId, desired(dedicated), actual(L))|OldUP]) :-
     propertyExpectation(PId, _, affinity, dedicated, soft, _, _, V, _), 
     member(on(V,_,N), Placement), findall(N, member(on(_,_,N), Placement), Nodes), length(Nodes, L), L > 1.
-    % maybe put in "actual" the list of other VFs on N? not only how many?
 
 checkProperty(PId, Placement, OldUP, OldUP) :-
     propertyExpectation(PId, _, affinity, same, _, _, _, V, V1), 
@@ -44,29 +27,20 @@ checkProperty(PId, Placement, OldUP, [(PId, desired(same), actual(N1,N2))|OldUP]
     propertyExpectation(PId, _, affinity, same, soft, _, _, V, V1), 
     member(on(V,_,N1), Placement), member(on(V1,_,N2), Placement), dif(N1, N2).
 
-% Tot HW usage
+% Numerical properties (greater/smaller)
 checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, totHW, smaller, _, Value, _, _, _),
-    findall(HW, (member(on(VNF,V,_), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, TotHW),
-    TotHW =< Value.
-checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(TotHW))|OldUP]) :-
-    propertyExpectation(PId, _, totHW, smaller, soft, Value, _, _, _),
-    findall(HW, (member(on(VNF,V,_), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, TotHW),
-    TotHW > Value.
+    propertyExpectation(PId, _, Property, Bound, _, Desired, _, From, To),
+    value(Property, Placement, (From,To), Actual), respectBound(Bound, Actual, Desired).
+checkProperty(PId, Placement, OldUP, [(PId, desired(Desired), actual(Actual))|OldUP]) :-
+    propertyExpectation(PId, _, Property, Bound, soft, Desired, _, From, To),
+    value(Property, Placement, (From,To), Actual), \+ respectBound(Bound, Actual, Desired).
 
-% Max Number of used nodes
-checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, nodes, smaller, _, Value, _, _, _),
-    distinctNodes(Placement, Nodes), length(Nodes, L), L =< Value.
+value(latency, Placement, (From,To), Lat) :- pathLat(Placement, From, To, Lat).
+value(bandwidth, Placement, (From,To), BW) :- minBW(Placement, From, To, BW).
+value(totHW, Placement, _, TotHW) :- hwAllocation(Placement, AllocHW), sumAlloc(AllocHW, TotHW).
+value(avgHW, Placement, _, AvgHW) :- hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW).
+value(nodes, Placement, _, L) :- distinctNodes(Placement, Nodes), length(Nodes, L).
 
-checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(L))|OldUP]) :-
-    propertyExpectation(PId, _, nodes, smaller, soft, Value, _, _, _),
-    distinctNodes(Placement, Nodes), length(Nodes, L), L > Value.
-
-% Avg hw load of nodes
-checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, avgHW, smaller, _, Value, _, _, _),
-    hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW), AvgHW =< Value.
-checkProperty(PId, Placement, OldUP, [(PId, desired(Value), actual(AvgHW))|OldUP]) :-
-    propertyExpectation(PId, _, avgHW, smaller, soft, Value, _, _, _),
-    hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW), AvgHW > Value.
+respectBound(greater, Actual, Desired) :- Actual >= Desired.
+respectBound(smaller, Actual, Desired) :- Actual =< Desired.
+respectBound(equal, Actual, Desired) :- Actual =:= Desired.

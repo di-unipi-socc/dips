@@ -12,6 +12,6 @@ hwAllocation(Ps, AllocHW) :-
 
 relevantNode(N, P, HW) :- member(on(VNF,V,N), P), vnfXUser(VNF, V, _, HW).
 
-avgAlloc(Alloc, Avg) :- 
-    findall(A, member((_,A), Alloc), As),
-    sum_list(As, Sum), length(As, Len), Avg is Sum / Len.
+sumAlloc(Alloc, Sum) :- findall(A, member((_,A), Alloc), As), sum_list(As, Sum).
+
+avgAlloc(Alloc, Avg) :- sumAlloc(Alloc, Sum), length(Alloc, L), Avg is Sum / L.
