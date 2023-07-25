@@ -27,3 +27,7 @@ link(cloud2, edge1, 120, 120).
 link(cloud2, edge2, 125, 80).
 link(cloud2, cloud1, 10, 1000).
 link(N, N, 0, 100000). % no latency and infinite bandwdith on self-links
+
+% user(UserId, Priority).
+user(gameAppOp, gold).
+user(sh1, silver).

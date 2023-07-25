@@ -4,14 +4,16 @@
 intent(gameAppOp, gsIntent, gamingService).
 
 % Changing property
-% propertyExpectation(IntentId, Property, Bound, From/Before, To/After).
+% propertyExpectation(PropertyId, IntentId, Property, Bound, From/Before, To/After).
 propertyExpectation(cp1, gsIntent, privacy, edge, _, _).
 propertyExpectation(cp2, gsIntent, logging, cloud, cloudGamingVF, _).
+propertyExpectation(cp3, gsIntent, caching, edge, _, edgeGamingVF).
 
 % Non-changing property
-% propertyExpectation(IntentId, Property, Bound, Level, Value, Unit, From, To).
+% propertyExpectation(PropertyId, IntentId, Property, Bound, Level, Value, Unit, From, To).
 propertyExpectation(bw1, gsIntent, bandwidth, greater, soft, 100, megabps, edgeGamingVF, cloudGamingVF).
 propertyExpectation(lat1, gsIntent, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
+propertyExpectation(aff1, gsIntent, affinity, dedicated, hard, _, _, cacheVF, _).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */
 
@@ -22,6 +24,7 @@ target(gamingService, [edgeGamingVF, cloudGamingVF]).
 vnf(edgeGamingVF, edge, 15).
 vnf(cloudGamingVF, cloud, 8).
 vnf(encVF, edge, 2).
+vnf(cacheVF, edge, 2).
 vnf(logVF, cloud, 1).
 
 % vnfXUser(Id, Version, UsersRange, HWReqs).
@@ -33,6 +36,7 @@ vnfXUser(cloudGamingVF, m, (1001, 10000), 12).
 vnfXUser(cloudGamingVF, l, (10001, inf), 25).
 vnfXUser(encVF, s, (1, inf), 2).
 vnfXUser(logVF, s, (1, inf), 1).
+vnfXUser(cacheVF, m, (1, inf), 10).
 
 % changingProperty(Property, VF). 
 %% changing properties defined according to priority order

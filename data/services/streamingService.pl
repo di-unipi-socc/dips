@@ -17,7 +17,7 @@ propertyExpectation(aff1, int1, affinity, dedicated, hard, _, _, storageVF, _).
 % The intent requires that storageVF run on a dedicated server AND
 % that encodeVF *possibly* runs on the same server as storageVF. Conflict.
 % Solution: ignore nodeAffinity as it is soft (shadowing). Inform user?
-propertyExpectation(aff3, int1, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
+% propertyExpectation(aff3, int1, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
 
 %%%%% Example 3 %%%%%
 % The intent requires that storageVF run on a dedicated server AND
@@ -44,8 +44,10 @@ propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, 
 % that the overall hardware consumption of the chain is at most 25GB.
 % Caching requires 30GB alone. Conflict.
 % Solution: inform user? or just fail?
-propertyExpectation(ch1, int1, caching, edge, encodeVF, decodeVF).
+propertyExpectation(ch1, int1, caching, _, encodeVF, _).
 propertyExpectation(hw1, int1, totHW, smaller, hard, 50, gb, _, _).
+
+propertyExpectation(aff5, int1, affinity, dedicated, hard, _, _, cacheVF, _).
 
 vnf(storageVF, cloud, 10).
 vnf(encodeVF, edge, 5).
