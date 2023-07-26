@@ -1,13 +1,13 @@
 /* INTENT MODEL (by user) */
 
-% intent(Stakeholder, IntentId, TargetId).
-intent(gameAppOp, gsIntent, gamingService).
+% intent(IntentId, Stakeholder, NUsers, TargetId).
+intent(gsIntent, gameAppOp, 3000, gamingService).
 
 % Changing property
 % propertyExpectation(PropertyId, IntentId, Property, Bound, From/Before, To/After).
 propertyExpectation(cp1, gsIntent, privacy, edge, _, _).
 propertyExpectation(cp2, gsIntent, logging, cloud, cloudGamingVF, _).
-propertyExpectation(cp3, gsIntent, caching, edge, _, edgeGamingVF).
+propertyExpectation(cp3, gsIntent, caching, _, _, edgeGamingVF).
 
 % Non-changing property
 % propertyExpectation(PropertyId, IntentId, Property, Bound, Level, Value, Unit, From, To).

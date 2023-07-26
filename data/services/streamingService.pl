@@ -1,4 +1,4 @@
-intent(sh1, int1, streamingService).
+intent(int1, sh1, 10000, streamingService).
 
 target(streamingService, [storageVF, streamVF]).
 

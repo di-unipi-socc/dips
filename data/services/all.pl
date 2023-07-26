@@ -1,4 +1,4 @@
-:- multifile intent/3.
+:- multifile intent/4.
 :- multifile propertyExpectation/6.
 :- multifile propertyExpectation/9.
 :- multifile target/2.
@@ -7,7 +7,7 @@
 :- multifile changingProperty/2.
 
 :-['./streamingService.pl'].
-%:-['./gamingService.pl'].
+:-['./gamingService.pl'].
 
 % vnf(Id, Affinity, ProcessingTime).
 vnf(encVF, edge, 2).
