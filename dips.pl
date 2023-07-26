@@ -1,4 +1,4 @@
-:-['data/infrastructures/infr5.pl', 'data/services/streamingService.pl'].
+:-['data/infrastructures/infr5.pl', 'data/services/all.pl'].
 :-['src/properties.pl', 'src/conflicts.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
@@ -18,7 +18,7 @@ modelling(StakeHolder, IntentId, NUsers, DimensionedChain) :-
     dimensionedChain(Chain, NUsers, DimensionedChain).
 
 conflictDetectionAndResolution(IntentId, FilteredNCP) :-
-    conflictsDetection(ConflictsAndSolutions), % if any conflict is unfeasible, fails
+    conflictsDetection(ConflictsAndSolutions), % if any unfeasible conflict, fail
     findall(P, propertyExpectation(P, IntentId, _,_,_,_,_,_,_), NCP),
     conflictsResolution(ConflictsAndSolutions, NCP, FilteredNCP).
 
