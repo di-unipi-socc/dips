@@ -40,6 +40,7 @@ value(latency, Placement, (From,To), Lat) :- pathLat(Placement, From, To, Lat).
 value(bandwidth, Placement, (From,To), BW) :- minBW(Placement, From, To, BW).
 value(totHW, Placement, _, TotHW) :- hwAllocation(Placement, AllocHW), sumAlloc(AllocHW, TotHW).
 value(avgHW, Placement, _, AvgHW) :- hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW).
+value(totChainHW, Placement, _, TotHW) :- sumChainHW(Placement, TotHW).
 value(nodes, Placement, _, L) :- distinctNodes(Placement, Nodes), length(Nodes, L).
 
 respectBound(greater, Actual, Desired) :- Actual >= Desired.

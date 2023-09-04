@@ -15,3 +15,7 @@ relevantNode(N, P, HW) :- member(on(VNF,V,N), P), vnfXUser(VNF, V, _, HW).
 sumAlloc(Alloc, Sum) :- findall(A, member((_,A), Alloc), As), sum_list(As, Sum).
 
 avgAlloc(Alloc, Avg) :- sumAlloc(Alloc, Sum), length(Alloc, L), Avg is Sum / L.
+
+% ---- CHAIN ALLOCATION ----
+
+sumChainHW(P, SumHW) :- findall(HW, (member(on(VNF,V,_), P), vnfXUser(VNF, V, _, HW)), HWs), sum_list(HWs, SumHW).

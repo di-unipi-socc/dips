@@ -20,7 +20,7 @@ propertyExpectation(aff4, int1, affinity, dedicated, hard, _, _, cacheVF, _).
 propertyExpectation(bw1, int1, bandwidth, greater, hard, 40, megabps, storageVF, cacheVF).
 %propertyExpectation(bw2, int1, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
 propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, cacheVF).
-propertyExpectation(hw1, int1, totHW, smaller, hard, 50, gb, _, _).
+propertyExpectation(hw1, int1, totChainHW, smaller, hard, 50, gb, _, _).
 
 
 
