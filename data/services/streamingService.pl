@@ -13,12 +13,12 @@ propertyExpectation(ch3, int1, decoding, _, streamVF, _).
 % that encodeVF runs on the same server as storageVF. Conflict.
 % Solution: inform user? or just fail?
 propertyExpectation(aff1, int1, affinity, dedicated, hard, _, _, storageVF, _).
-%propertyExpectation(aff2, int1, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
+% propertyExpectation(aff2, int1, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
 propertyExpectation(aff3, int1, affinity, dedicated, soft, _, _, storageVF, _). % conflict with aff3
 propertyExpectation(aff4, int1, affinity, dedicated, hard, _, _, cacheVF, _).
 
 propertyExpectation(bw1, int1, bandwidth, greater, hard, 40, megabps, storageVF, cacheVF).
-%propertyExpectation(bw2, int1, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
+% propertyExpectation(bw2, int1, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
 propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, cacheVF).
 propertyExpectation(hw1, int1, totChainHW, smaller, hard, 50, gb, _, _).
 
@@ -50,6 +50,10 @@ propertyExpectation(hw1, int1, totChainHW, smaller, hard, 50, gb, _, _).
 % that the overall hardware consumption of the chain is at most 25GB.
 % Caching requires 30GB alone. Conflict.
 % Solution: inform user? or just fail?
+
+%%%%% Example 6 %%%%%
+% In base al contratto stipulato dall'AppOp, il tetto di 25 GB (esempio precedente) viene fissato dall' InfrPr,
+% quindi è un suo intento.
 
 vnf(storageVF, cloud, 10).
 vnf(streamVF, edge, 8).
