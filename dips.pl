@@ -36,7 +36,7 @@ completedChain(LChain, IntentId, Chain) :-
     modifiedChain(Properties, LChain, Chain).
 modifiedChain([(PId,F)|Ps], Chain, NewChain) :- 
     propertyExpectation(PId, _, P, Bound, From, To), vnf(F, A, _),
-    chainModifiedByProperty(P, Bound, From, To, (F,A), Chain, ModChain),
+    once(chainModifiedByProperty(P, Bound, From, To, (F,A), Chain, ModChain)),
     modifiedChain(Ps, ModChain, NewChain).
 modifiedChain([], Chain, Chain).
 

@@ -1,26 +1,26 @@
-intent(int1, sh1, 10000, streamingService).
+intent(ssIntent, streamAppOp, 10000, streamingService).
 
 target(streamingService, [storageVF, streamVF]).
 
 % propertyExpectation(PropertyId, IntentId, Property, Bound, From/Before, To/After).
-propertyExpectation(ch1, int1, caching, _, _, storageVF).
-propertyExpectation(ch2, int1, encoding, _, _, storageVF).
-propertyExpectation(ch3, int1, decoding, _, streamVF, _).
+propertyExpectation(ch1, ssIntent, caching, _, _, storageVF).
+propertyExpectation(ch2, ssIntent, encoding, _, _, storageVF).
+propertyExpectation(ch3, ssIntent, decoding, _, streamVF, _).
 
 % SYNTAX CONFLICTS: impossible to satisfy contrasting intents on same request.
 %%%%% Example 1 %%%%%
 % The intent requires that storageVF run on a dedicated server AND
 % that encodeVF runs on the same server as storageVF. Conflict.
 % Solution: inform user? or just fail?
-propertyExpectation(aff1, int1, affinity, dedicated, hard, _, _, storageVF, _).
-% propertyExpectation(aff2, int1, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
-propertyExpectation(aff3, int1, affinity, dedicated, soft, _, _, storageVF, _). % conflict with aff3
-propertyExpectation(aff4, int1, affinity, dedicated, hard, _, _, cacheVF, _).
+propertyExpectation(aff1, ssIntent, affinity, dedicated, hard, _, _, storageVF, _).
+% propertyExpectation(aff2, ssIntent, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
+propertyExpectation(aff3, ssIntent, affinity, dedicated, soft, _, _, storageVF, _). % conflict with aff3
+propertyExpectation(aff4, ssIntent, affinity, dedicated, hard, _, _, cacheVF, _).
 
-propertyExpectation(bw1, int1, bandwidth, greater, hard, 40, megabps, storageVF, cacheVF).
-% propertyExpectation(bw2, int1, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
-propertyExpectation(bw4, int1, bandwidth, smaller, soft, 10, megabps, encodeVF, cacheVF).
-propertyExpectation(hw1, int1, totChainHW, smaller, hard, 50, gb, _, _).
+propertyExpectation(bw1, ssIntent, bandwidth, greater, hard, 40, megabps, storageVF, cacheVF).
+% propertyExpectation(bw2, ssIntent, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
+propertyExpectation(bw4, ssIntent, bandwidth, smaller, soft, 10, megabps, encodeVF, cacheVF).
+propertyExpectation(hw1, ssIntent, totChainHW, smaller, hard, 50, gb, _, _).
 
 
 
