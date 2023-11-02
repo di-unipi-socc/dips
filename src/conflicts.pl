@@ -23,20 +23,18 @@ handleUnfeasibleConflicts([]).
 conflict((PId1,PId2), Solution) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VF, _),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, VF, _),
-    dif(PId1, PId2), conflictingBounds(I, Property, (B1,B2),(V1,V2)), solution((L1,L2), (PId1,PId2), Solution).
+    dif(PId1, PId2), conflictingBounds(I, Property, (B1,B2),(V1,V2)), solution(Property, (L1,L2), (PId1,PId2), Solution).
 conflict((PId1,PId2), Solution) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, _, VF),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, _, VF),
     dif(PId1, PId2), conflictingBounds(I, Property, (B1,B2),(V1,V2)), solution((L1,L2), (PId1,PId2), Solution).
 
 % levels and related SOLUTIONS (in case of conflict)
-% TODO: add Property to these predicates.
-solution((hard, hard), _, unfeasible). % unfeasible
-solution((hard, soft), (_, PId2), (remove, [PId2])). % remove soft
-solution((soft, soft), (PId1, PId2), (remove, [PId1, PId2])). % remove both
+solution(_, (hard, hard), _, unfeasible). % unfeasible
+solution(_, (hard, soft), (_, PId2), (remove, [PId2])). % remove soft
+solution(_, (soft, soft), (PId1, PId2), (remove, [PId1, PId2])). % remove both
 
 % CONFLICTING BOUNDS 
-% TODO: add Property to these predicates. Also (I, P)
 conflictingBounds(_, _, (greater, smaller), (L, U)) :- L > U.
 conflictingBounds(_, _, (dedicated, same), _).
 
