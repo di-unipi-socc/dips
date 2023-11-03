@@ -12,7 +12,7 @@ dips(IntentId, Targets) :-
 
 delivery(IntentId, (L, Placement, Unsatisfied)) :- 
     modelling(IntentId, Chain),
-    conflictDetectionAndResolution(IntentId, NCP),
+    conflictDetectionAndResolution(IntentId, Chain, NCP),
     translation(Chain, NCP, Placement, Unsatisfied), length(Unsatisfied, L).
 
 modelling(IntentId, DimensionedChain) :-
@@ -21,8 +21,8 @@ modelling(IntentId, DimensionedChain) :-
     completedChain(LayeredChain, IntentId, CompletedChain),
     dimensionedChain(CompletedChain, NUsers, DimensionedChain).
 
-conflictDetectionAndResolution(IntentId, FilteredNCP) :-
-    conflictsDetection(ConflictsAndSolutions), % if any unfeasible conflict, fail
+conflictDetectionAndResolution(IntentId, Chain, FilteredNCP) :-
+    conflictsDetection(Chain, ConflictsAndSolutions), % if any unfeasible conflict, fail
     findall(P, propertyExpectation(P, IntentId, _,_,_,_,_,_,_), NCP),
     conflictsResolution(ConflictsAndSolutions, NCP, FilteredNCP).
 
