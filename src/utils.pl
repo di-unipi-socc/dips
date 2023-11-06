@@ -42,7 +42,6 @@ addedFromTo([From|Zs], From, To, G, [G, From|NewZs]) :- addedFromTo2(Zs, To, G, 
 addedFromTo2([To|Zs], To, G, [To, G|Zs]).
 addedFromTo2([X|Zs], To, G, [X|NewZs]) :- dif(X,To), addedFromTo2(Zs, To, G, NewZs).
 
-
 addedBefore([Before|Zs], Before, G, [G, Before|Zs]) :- addedBefore(Zs, Before, G, Zs).
 addedBefore([X|Zs], Before, G, [X|NewZs]) :- dif(X,Before), addedBefore(Zs, Before, G, NewZs).
 addedBefore([], _, _, []).
@@ -52,3 +51,13 @@ addedAfter([X|Zs], After, G, [X|NewZs]) :- dif(X,After), addedAfter(Zs, After, G
 addedAfter([], _, _, []).
 
 distinctNodes(P, Ns) :- findall(N, member(on(_,_,N), P), Ms), sort(Ms, Ns).
+
+subchain(From, To, [V|Rest], Subchain) :- dif(From, V), subchain(From, To, Rest, Subchain).
+subchain(From, To, [From|Rest], [From|Subchain]) :- subchain2(To, Rest, Subchain).
+
+subchain2(To, [V|Rest], [V|Subchain]) :- dif(To, V), subchain2(To, Rest, Subchain).
+subchain2(To, [To|_], [To]).
+
+overlaps(C, VI1, VF1, VI2, VF2) :- subchain(VI1, VF1, C, S1), subchain(VI2, VF2, C, S2), overlaps(S1, S2).
+overlaps(S1, S2) :- length(S1, L1), length(S2, L2), L1 < L2, append( [_, S1, _], S2 ), !.
+overlaps(S1, S2) :- append( [_, S2, _], S1 ).

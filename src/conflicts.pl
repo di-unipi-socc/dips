@@ -35,13 +35,3 @@ conflictingBounds(_, (dedicated, same), _).
 solution(_, (hard, hard), _, unfeasible). % unfeasible
 solution(_, (hard, soft), (_, PId2), (remove, [PId2])). % remove soft
 solution(_, (soft, soft), (PId1, PId2), (remove, [PId1, PId2])). % remove both
-
-subchain(From, To, [V|Rest], Subchain) :- dif(From, V), subchain(From, To, Rest, Subchain).
-subchain(From, To, [From|Rest], [From|Subchain]) :- subchain2(To, Rest, Subchain).
-
-subchain2(To, [V|Rest], [V|Subchain]) :- dif(To, V), subchain2(To, Rest, Subchain).
-subchain2(To, [To|_], [To]).
-
-overlaps(C, VI1, VF1, VI2, VF2) :- subchain(VI1, VF1, C, S1), subchain(VI2, VF2, C, S2), overlaps(S1, S2).
-overlaps(S1, S2) :- length(S1, L1), length(S2, L2), L1 < L2, append( [_, S1, _], S2 ), !.
-overlaps(S1, S2) :- append( [_, S2, _], S1 ).
