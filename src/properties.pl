@@ -29,12 +29,18 @@ checkProperty(PId, Placement, OldUP, [(PId, desired(same), actual(N1,N2))|OldUP]
     member(on(V,_,N1), Placement), member(on(V1,_,N2), Placement), dif(N1, N2).
 
 % Numerical properties (greater/smaller)
-checkProperty(PId, Placement, OldUP, OldUP) :-
-    propertyExpectation(PId, _, Property, Bound, _, Desired, _, From, To),
-    value(Property, Placement, (From,To), Actual), respectBound(Bound, Actual, Desired).
-checkProperty(PId, Placement, OldUP, [(PId, desired(Desired), actual(Actual))|OldUP]) :-
-    propertyExpectation(PId, _, Property, Bound, soft, Desired, _, From, To),
-    value(Property, Placement, (From,To), Actual), \+ respectBound(Bound, Actual, Desired).
+
+% additive(Property)
+additive(latency).
+additive(totHW).
+additive(avgHW).
+additive(totChainHW).
+additive(nodes).
+
+% concave(Property)
+concave(bandwidth).
+
+% multiplicative(Property)
 
 value(latency, Placement, (From,To), Lat) :- pathLat(Placement, From, To, Lat).
 value(bandwidth, Placement, (From,To), BW) :- minBW(Placement, From, To, BW).
@@ -46,3 +52,10 @@ value(nodes, Placement, _, L) :- distinctNodes(Placement, Nodes), length(Nodes, 
 respectBound(greater, Actual, Desired) :- Actual >= Desired.
 respectBound(smaller, Actual, Desired) :- Actual =< Desired.
 respectBound(equal, Actual, Desired) :- Actual =:= Desired.
+
+checkProperty(PId, Placement, OldUP, OldUP) :-
+    propertyExpectation(PId, _, Property, Bound, _, Desired, _, From, To),
+    value(Property, Placement, (From,To), Actual), respectBound(Bound, Actual, Desired).
+checkProperty(PId, Placement, OldUP, [(PId, desired(Desired), actual(Actual))|OldUP]) :-
+    propertyExpectation(PId, _, Property, Bound, soft, Desired, _, From, To),
+    value(Property, Placement, (From,To), Actual), \+ respectBound(Bound, Actual, Desired).

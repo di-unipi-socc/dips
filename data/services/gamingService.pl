@@ -12,7 +12,7 @@ propertyExpectation(cp3, gsIntent, caching, _, _, edgeGamingVF).
 % Non-changing property
 % propertyExpectation(PropertyId, IntentId, Property, Bound, Level, Value, Unit, From, To).
 propertyExpectation(bw1, gsIntent, bandwidth, greater, soft, 100, megabps, edgeGamingVF, cloudGamingVF).
-propertyExpectation(lat1, gsIntent, latency, smaller, hard, 50, ms, gateway, edgeGamingVF).
+propertyExpectation(lat1, gsIntent, latency, lower, hard, 50, ms, gateway, edgeGamingVF).
 propertyExpectation(aff1, gsIntent, affinity, dedicated, hard, _, _, cacheVF, _).
 
 /* PROVIDER/TARGET-DEPENDENT MODEL */

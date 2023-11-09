@@ -1,3 +1,4 @@
+:- ['utils.pl', 'properties.pl'].
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 
 % Detection
@@ -19,17 +20,25 @@ handleUnfeasibleConflicts(UnfeasibleConflicts) :-
     dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts), fail.
 handleUnfeasibleConflicts([]).
 
-% --- General "intra"-property conflicts ---
+% --- General "intra"-property numeric conflicts ---
 conflict((PId1,PId2), Chain, Solution) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
-    dif(PId1, PId2), conflictingBounds(Property, Chain, (VI1,VF1), (VI2, VF2), (B1,B2), (V1,V2)), 
+    dif(PId1, PId2), additive(Property), additiveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
+    solution(Property, (L1,L2), (PId1,PId2), Solution).
+conflict((PId1,PId2), Chain, Solution) :-
+    propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
+    propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
+    dif(PId1, PId2), concave(Property), concaveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
     solution(Property, (L1,L2), (PId1,PId2), Solution).
 
 % CONFLICTING BOUNDS 
-conflictingBounds(bandwidth, (greater, smaller), (L, U)) :- L > U.
-% with latency we need to know if "L" is for a subpath of "G" a -> b -> c, a -> b (< 100), a-> c (> 100)
-conflictingBounds(_, (dedicated, same), _).
+additiveConflict(C, (VI1,VF1), (VI2,VF2), _, _) :- overlaps(C, VI1, VF1, VI2, VF2).
+additiveConflict(C, (VI1,VF1), (VI2,VF2), (greater, lower), (V1,V2)) :- subpath(C, VI1, VF1, VI2, VF2), V1 > V2.
+
+% concaveConflict(C, (VI1,VF1), (VI2,VF2), (greater, greater), (V1, V2)) :- overlaps(C, VI1, VF1, VI2, VF2), A is max(V1, V2).
+% concaveConflict(C, (VI1,VF1), (VI2,VF2), (lower, lower), (V1, V2)) :- overlaps(C, VI1, VF1, VI2, VF2), A is min(V1, V2).
+concaveConflict(C, (VI1,VF1), (VI2,VF2), (greater, lower), (V1,V2)) :- subpath(C, VI1, VF1, VI2, VF2), V1 > V2.
 
 % levels and related SOLUTIONS (in case of conflict)
 solution(_, (hard, hard), _, unfeasible). % unfeasible

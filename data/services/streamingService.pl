@@ -18,9 +18,9 @@ propertyExpectation(aff3, ssIntent, affinity, dedicated, soft, _, _, storageVF, 
 propertyExpectation(aff4, ssIntent, affinity, dedicated, hard, _, _, cacheVF, _).
 
 propertyExpectation(bw1, ssIntent, bandwidth, greater, hard, 40, megabps, storageVF, cacheVF).
-% propertyExpectation(bw2, ssIntent, bandwidth, smaller, hard, 10, megabps, encodeVF, decodeVF).
-propertyExpectation(bw4, ssIntent, bandwidth, smaller, soft, 10, megabps, encodeVF, cacheVF).
-propertyExpectation(hw1, ssIntent, totChainHW, smaller, hard, 50, gb, _, _).
+% propertyExpectation(bw2, ssIntent, bandwidth, lower, hard, 10, megabps, encodeVF, decodeVF).
+propertyExpectation(bw4, ssIntent, bandwidth, lower, soft, 10, megabps, encodeVF, cacheVF).
+propertyExpectation(hw1, ssIntent, totChainHW, lower, hard, 50, gb, _, _).
 
 
 
