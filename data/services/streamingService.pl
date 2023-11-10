@@ -22,8 +22,6 @@ propertyExpectation(lat1, ssIntent, latency, lower, hard, 100, ms, streamVF, sto
 propertyExpectation(lat2, ssIntent, latency, greater, soft, 120, ms, encodeVF, decodeVF).
 propertyExpectation(hw1, ssIntent, totChainHW, lower, hard, 50, gb, _, _).
 
-
-
 %%%%% Example 2 %%%%%
 % The intent requires that storageVF run on a dedicated server AND
 % that encodeVF *possibly* runs on the same server as storageVF. Conflict.
