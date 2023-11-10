@@ -58,8 +58,12 @@ subchain(From, To, [From|Rest], [From|Subchain]) :- subchain2(To, Rest, Subchain
 subchain2(To, [V|Rest], [V|Subchain]) :- dif(To, V), subchain2(To, Rest, Subchain).
 subchain2(To, [To|_], [To]).
 
-overlaps(C, VI1, VF1, VI2, VF2) :- subchain(VI1, VF1, C, S1), subchain(VI2, VF2, C, S2), overlaps(S1, S2).
+overlaps(C, VI1, VF1, VI2, VF2) :- 
+    findall(VF, (member((VF,_,_),C)), Chain),
+    subchain(VI1, VF1, Chain, S1), subchain(VI2, VF2, Chain, S2), overlaps(S1, S2).
 overlaps(S1,S2) :- append([_,[X,Y],_], S1), append([_,[X,Y],_],S2).
 
-subpath(C, VI1, VF1, VI2, VF2) :- subchain(VI1, VF1, C, S1), subchain(VI2, VF2, C, S2), subpath(S1, S2).
+subpath(C, VI1, VF1, VI2, VF2) :- 
+    findall(VF, (member((VF,_,_),C)), Chain),
+    subchain(VI1, VF1, Chain, S1), subchain(VI2, VF2, Chain, S2), subpath(S1, S2).
 subpath(S1, S2) :- length(S1, L1), length(S2, L2), L1 =< L2, append( [_, S1, _], S2 ).

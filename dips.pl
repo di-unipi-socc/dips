@@ -10,6 +10,10 @@ dips(IntentId, Targets) :-
     intent(IntentId, _, _, _), 
     findall(T, delivery(IntentId, T), Ts), sort(Ts, Targets).
 
+justC(IntentId, Chain) :-
+    modelling(IntentId, Chain),
+    conflictDetectionAndResolution(IntentId, Chain, _).
+
 delivery(IntentId, (L, Placement, Unsatisfied)) :- 
     modelling(IntentId, Chain),
     conflictDetectionAndResolution(IntentId, Chain, NCP),

@@ -4,8 +4,8 @@ target(streamingService, [storageVF, streamVF]).
 
 % propertyExpectation(PropertyId, IntentId, Property, Bound, From/Before, To/After).
 propertyExpectation(ch1, ssIntent, caching, _, _, storageVF).
-propertyExpectation(ch2, ssIntent, encoding, _, _, storageVF).
-propertyExpectation(ch3, ssIntent, decoding, _, streamVF, _).
+propertyExpectation(ch2, ssIntent, decoding, _, _, storageVF).
+propertyExpectation(ch3, ssIntent, encoding, _, streamVF, _).
 
 % SYNTAX CONFLICTS: impossible to satisfy contrasting intents on same request.
 %%%%% Example 1 %%%%%
@@ -13,13 +13,13 @@ propertyExpectation(ch3, ssIntent, decoding, _, streamVF, _).
 % that encodeVF runs on the same server as storageVF. Conflict.
 % Solution: inform user? or just fail?
 propertyExpectation(aff1, ssIntent, affinity, dedicated, hard, _, _, storageVF, _).
-% propertyExpectation(aff2, ssIntent, affinity, same, hard, _, _, storageVF, encodeVF). % conflict with aff1
-propertyExpectation(aff3, ssIntent, affinity, dedicated, soft, _, _, storageVF, _). % conflict with aff3
-propertyExpectation(aff4, ssIntent, affinity, dedicated, hard, _, _, cacheVF, _).
+propertyExpectation(aff2, ssIntent, affinity, same, soft, _, _, storageVF, encodeVF). % conflict with aff1
 
-propertyExpectation(bw1, ssIntent, bandwidth, greater, hard, 40, megabps, storageVF, cacheVF).
-% propertyExpectation(bw2, ssIntent, bandwidth, lower, hard, 10, megabps, encodeVF, decodeVF).
+propertyExpectation(bw1, ssIntent, bandwidth, greater, hard, 40, megabps, streamVF, cacheVF).
 propertyExpectation(bw4, ssIntent, bandwidth, lower, soft, 10, megabps, encodeVF, cacheVF).
+
+propertyExpectation(lat1, ssIntent, latency, lower, hard, 100, ms, streamVF, storageVF).
+propertyExpectation(lat2, ssIntent, latency, greater, soft, 120, ms, encodeVF, decodeVF).
 propertyExpectation(hw1, ssIntent, totChainHW, lower, hard, 50, gb, _, _).
 
 
