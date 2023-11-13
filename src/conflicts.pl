@@ -40,17 +40,17 @@ conflict((PId1,PId2), _, Solution) :- % other
 
 % --- Specific "intra"-property numeric conflicts ---
 
-conflict((PId1, PId2), _, Solution) :- % totChainHW (requested too large changing property)
+% totChainHW
+conflict((PId1, PId2), _, Solution) :- % one changing propoerty hw is too large
     propertyExpectation(PId1, I, totChainHW, _, L, V, _, _, _),
     propertyExpectation(PId2, I, P, _, _, _),
     intent(I, _, U, _), changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
     solution(totChainHW, (L, hard), (PId1,PId2), Solution).
-conflict((PId1, tooMuchHW), Chain, Solution) :- % totChainHW (requested too large changing property)
+conflict((PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
     propertyExpectation(PId1, I, totChainHW, _, L, V, _, _, _),
     intent(I, _, U, _), findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, 
     solution(totChainHW, (L, hard), (PId1, tooMuchHW), Solution).
 
-dimensionedHW(Chain, U, HWReqs) :- member((VF, _, D), Chain), vnfXUser(VF, D, (L, H), HWReqs), between(L, H, U).
 % CONFLICTING BOUNDS 
 additiveConflict(C, (VI1,VF1), (VI2,VF2), (greater, lower), (V1,V2)) :- subpath(C, VI1, VF1, VI2, VF2), V1 > V2.
 
