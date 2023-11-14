@@ -41,7 +41,7 @@ conflict((PId1,PId2), _, Solution) :- % other
 % --- Specific "intra"-property numeric conflicts ---
 
 % totChainHW
-conflict((PId1, PId2), _, Solution) :- % one changing propoerty hw is too large
+conflict((PId1, PId2), _, Solution) :- % one changing property hw is too large
     propertyExpectation(PId1, I, totChainHW, _, L, V, _, _, _),
     propertyExpectation(PId2, I, P, _, _, _),
     intent(I, _, U, _), changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
@@ -52,10 +52,10 @@ conflict((PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
     solution(totChainHW, (L, hard), (PId1, tooMuchChainHW), Solution).
 
 % availability
-conflict((PId1, PId2), Chain, Solution) :- % one changing propoerty hw is too large
-    propertyExpectation(PId1, I, chainAvailability, _, L1, V, _, VI, VF),
-    subChain(Chain, VI, VF, SubChain), 
-    findall((PId, L), (member(VNF, SubChain), propertyExpectation(PId, I, vnfAvailability, _, _, A, _, VNF, _), A < V), [(PId2,L2)|Xs]),
+conflict((PId1, PId2), Chain, Solution) :- % there exists a vnf 
+    propertyExpectation(PId1, I, chainAvailability, _, L1, V1, _, VI, VF),
+    propertyExpectation(PId2, I, vnfAvailability, _, L2, V2, _, VNF, _),
+    subChain(Chain, VI, VF, SubChain), member(VNF, SubChain), V1 > V2,
     once(solution(_, (L1,L2), (PId1,PId2), Solution)).
 
 % CONFLICTING BOUNDS 
