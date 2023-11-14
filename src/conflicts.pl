@@ -49,7 +49,7 @@ conflict((PId1, PId2), _, Solution) :- % one changing propoerty hw is too large
 conflict((PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
     propertyExpectation(PId1, I, totChainHW, _, L, V, _, _, _),
     intent(I, _, U, _), findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, 
-    solution(totChainHW, (L, hard), (PId1, tooMuchHW), Solution).
+    solution(totChainHW, (L, hard), (PId1, tooMuchChainHW), Solution).
 
 % availability
 conflict((PId1, PId2), Chain, Solution) :- % one changing propoerty hw is too large
