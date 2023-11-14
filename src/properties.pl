@@ -22,7 +22,7 @@ additive(nodes).
 
 concave(bandwidth).
 
-multiplicative(availability).
+multiplicative(chainAvailability).
 
 other(affinity).
 

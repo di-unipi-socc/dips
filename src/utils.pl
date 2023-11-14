@@ -69,3 +69,8 @@ subpath(C, VI1, VF1, VI2, VF2) :-
 subpath(S1, S2) :- length(S1, L1), length(S2, L2), L1 =< L2, append( [_, S1, _], S2 ).
 
 dimensionedHW(Chain, U, HWReqs) :- member((VF, _, D), Chain), vnfXUser(VF, D, (L, H), HWReqs), between(L, H, U).
+
+prod_list([], 0).
+prod_list(L, Product) :- dif(L, []), prod_list(L, 1, Product).
+prod_list([H|T], OldP, NewP) :- TmpP is OldP * H, prod_list(T, TmpP, NewP).
+prod_list([], P, P).
