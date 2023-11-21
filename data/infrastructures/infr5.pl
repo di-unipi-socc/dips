@@ -1,4 +1,4 @@
-% node(Id, Type, HWCaps).
+% node(Id, Type, HWCaps, Availability).
 node(gateway, edge, 10).
 node(edge1, edge, 18).
 node(edge2, edge, 25).
@@ -31,3 +31,10 @@ link(N, N, 0, 100000). % no latency and infinite bandwdith on self-links
 % user(UserId, Priority).
 user(gameAppOp, gold).
 user(sh1, silver).
+
+avXPrior(gold, 0.9999).
+avXPrior(silver, 0.99).
+
+propertyExpectation(avInfra, infraIntent, availability, gold, hard, 0.999, _, _, _).
+propertyExpectation(avInfra, infraIntent, availability, silver, hard, 0.99, _, _, _).
+propertyExpectation(avInfra, infraIntent, availability, bronze, hard, 0.9, _, _, _).

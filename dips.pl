@@ -42,7 +42,7 @@ modifiedChain([], Chain, Chain).
 
 dimensionedChain(Chain, NUsers, DimChain) :- dimensionedChain(Chain, NUsers, [], DimChain).
 dimensionedChain([(F,A)|Zs], U, OldC, NewC) :- vnfXUser(F, D, (L, H), _), between(L, H, U),  dimensionedChain(Zs, U, [(F, A, D)|OldC], NewC).
-dimensionedChain([], _, Chain, Chain).
+dimensionedChain([], _, RChain, Chain) :- reverse(RChain, Chain).
 
 %% PLACEMENT %%
 

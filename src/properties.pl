@@ -26,6 +26,8 @@ multiplicative(chainAvailability).
 
 other(affinity).
 
+%value(vnfAvailability, Placement, (From, _), Availability) :- member(on(V,_,N), Placement), node(N, _, _, Availability).
+value(chainAvailability, Placement, (From, To), Availability) :- pathAvailability(Placement, From, To, Availability).
 value(latency, Placement, (From,To), Lat) :- pathLat(Placement, From, To, Lat).
 value(bandwidth, Placement, (From,To), BW) :- minBW(Placement, From, To, BW).
 value(totHW, Placement, _, TotHW) :- hwAllocation(Placement, AllocHW), sumAlloc(AllocHW, TotHW).

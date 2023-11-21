@@ -50,21 +50,22 @@ addedAfter([After|Zs], After, G, [After, G|Zs]) :- addedAfter(Zs, After, G, Zs).
 addedAfter([X|Zs], After, G, [X|NewZs]) :- dif(X,After), addedAfter(Zs, After, G, NewZs).
 addedAfter([], _, _, []).
 
+pathAvailability(_, _, _, _).
+
 distinctNodes(P, Ns) :- findall(N, member(on(_,_,N), P), Ms), sort(Ms, Ns).
 
-subChain(From, To, [V|Rest], Subchain) :- dif(From, V), subChain(From, To, Rest, Subchain).
-subChain(From, To, [From|Rest], [From|Subchain]) :- subChain2(To, Rest, Subchain).
+subChain(From, To, Chain, Subchain) :- findall(VF, (member((VF,_,_),Chain)), CChain), subChain((From, To), CChain, Subchain).
+subChain((From, To), [V|Rest], Subchain) :- dif(From, V), subChain((From, To), Rest, Subchain).
+subChain((From, To), [From|Rest], [From|Subchain]) :- subChain2(To, Rest, Subchain).
 
 subChain2(To, [V|Rest], [V|Subchain]) :- dif(To, V), subChain2(To, Rest, Subchain).
 subChain2(To, [To|_], [To]).
 
-overlaps(C, VI1, VF1, VI2, VF2) :- 
-    findall(VF, (member((VF,_,_),C)), Chain),
+overlaps(Chain, VI1, VF1, VI2, VF2) :- 
     subChain(VI1, VF1, Chain, S1), subChain(VI2, VF2, Chain, S2), overlaps(S1, S2).
 overlaps(S1,S2) :- append([_,[X,Y],_], S1), append([_,[X,Y],_],S2).
 
-subpath(C, VI1, VF1, VI2, VF2) :- 
-    findall(VF, (member((VF,_,_),C)), Chain),
+subpath(Chain, VI1, VF1, VI2, VF2) :- 
     subChain(VI1, VF1, Chain, S1), subChain(VI2, VF2, Chain, S2), subpath(S1, S2).
 subpath(S1, S2) :- length(S1, L1), length(S2, L2), L1 =< L2, append( [_, S1, _], S2 ).
 
