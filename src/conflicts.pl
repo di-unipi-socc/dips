@@ -27,7 +27,8 @@ conflict((PId1,PId2), Chain, Solution) :-
 conflict((PId1,PId2), Chain, Solution) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
-    dif(PId1, PId2), concave(Property), concaveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
+    dif(PId1, PId2), (concave(Property); multiplicative(Property)),
+    concaveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
     once(solution(Property, (L1,L2), (PId1,PId2), Solution)).
 conflict((PId1,PId2), _, Solution) :- % other
     propertyExpectation(PId1, I, Property, B1, L1, _, _, VI1, VF1),
