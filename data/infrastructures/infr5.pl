@@ -27,14 +27,3 @@ link(cloud2, edge1, 120, 120).
 link(cloud2, edge2, 125, 80).
 link(cloud2, cloud1, 10, 1000).
 link(N, N, 0, 100000). % no latency and infinite bandwdith on self-links
-
-% user(UserId, Priority).
-user(gameAppOp, gold).
-user(sh1, silver).
-
-avXPrior(gold, 0.9999).
-avXPrior(silver, 0.99).
-
-propertyExpectation(avInfra, infraIntent, availability, gold, hard, 0.999, _, _, _).
-propertyExpectation(avInfra, infraIntent, availability, silver, hard, 0.99, _, _, _).
-propertyExpectation(avInfra, infraIntent, availability, bronze, hard, 0.9, _, _, _).

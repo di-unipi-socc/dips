@@ -6,6 +6,7 @@
 :- multifile vnfXUser/4.
 :- multifile changingProperty/2.
 
+:-['./infrPr.pl'].
 :-['./streamingService.pl'].
 :-['./gamingService.pl'].
 

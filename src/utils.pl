@@ -54,6 +54,7 @@ pathAvailability(_, _, _, _).
 
 distinctNodes(P, Ns) :- findall(N, member(on(_,_,N), P), Ms), sort(Ms, Ns).
 
+subChain(begin, end, Chain, Chain).
 subChain(From, To, Chain, Subchain) :- findall(VF, (member((VF,_,_),Chain)), CChain), subChain((From, To), CChain, Subchain).
 subChain((From, To), [V|Rest], Subchain) :- dif(From, V), subChain((From, To), Rest, Subchain).
 subChain((From, To), [From|Rest], [From|Subchain]) :- subChain2(To, Rest, Subchain).

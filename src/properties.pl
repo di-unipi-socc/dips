@@ -21,6 +21,7 @@ additive(totChainHW).
 additive(nodes).
 
 concave(bandwidth).
+concave(vnfAvailability).
 
 multiplicative(chainAvailability).
 
@@ -30,7 +31,7 @@ other(affinity).
 value(chainAvailability, Placement, (From, To), Availability) :- pathAvailability(Placement, From, To, Availability).
 value(latency, Placement, (From,To), Lat) :- pathLat(Placement, From, To, Lat).
 value(bandwidth, Placement, (From,To), BW) :- minBW(Placement, From, To, BW).
-value(totHW, Placement, _, TotHW) :- hwAllocation(Placement, AllocHW), sumAlloc(AllocHW, TotHW).
+value(totChainHW, Placement, _, TotHW) :- hwAllocation(Placement, AllocHW), sumAlloc(AllocHW, TotHW).
 value(avgHW, Placement, _, AvgHW) :- hwAllocation(Placement, AllocHW), avgAlloc(AllocHW, AvgHW).
 value(nodes, Placement, _, L) :- distinctNodes(Placement, Nodes), length(Nodes, L).
 
