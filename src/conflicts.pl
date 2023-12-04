@@ -20,46 +20,32 @@ dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(Unfeasibl
 handleUnfeasibleConflicts([]).
 
 % --- General "intra"-property numeric conflicts ---
-conflict((PId1,PId2), Chain, Solution) :-
+intraDetect((PId1,PId2), Chain, (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
-    dif(PId1, PId2), additive(Property),
-    additiveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
-    once(solution(Property, (L1,L2), (PId1,PId2), Solution)).
-conflict((PId1,PId2), Chain, Solution) :-
+    dif(PId1, PId2).
+
+interDetect((PId1,PId2), Chain, (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
     intent(I1, SH1, _, T1), intent(I2, infrPr, _, T2), dif(SH1, infrPr)
     propertyExpectation(PId1, I1, Property, B1, L1, V1, _, VI1, VF1),
-    propertyExpectation(PId2, I2, Property, B2, UP, V2, _, VI2, VF2),
-    user(SH1, UP), dif(PId1, PId2), additive(Property),
-    additiveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
-    once(solutionInfrPr(Property, L1, UP, V1, (PId1,PId2), Solution)).
+    propertyExpectation(PId2, I2, Property, B2, L2, V2, _, VI2, VF2),
+    dif(PId1, PId2), user(SH1, L2).
 
-conflict((PId1,PId2), Chain, Solution) :-
-    propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
-    propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
-    dif(PId1, PId2), (concave(Property); multiplicative(Property)),
-    concaveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
-    once(solution(Property, (L1,L2), (PId1,PId2), Solution)).
-conflict((PId1,PId2), Chain, Solution) :-
-    intent(I1, SH1, _, T1), intent(I2, infrPr, _, T2), dif(SH1, infrPr),
-    propertyExpectation(PId1, I1, Property, B1, L1, V1, _, VI1, VF1),
-    propertyExpectation(PId2, I2, Property, B2, UP, V2, _, VI2, VF2),
-    user(SH1, UP), dif(PId1, PId2), (concave(Property); multiplicative(Property)),
-    concaveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)),
-    once(solutionInfrPr(Property, L1, UP, V1, (PId1,PId2), Solution)).
+typeDetect(Property, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)) :-
+    additive(Property), additiveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)).
+typeDetect(Property, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)) :-
+    (concave(Property); multiplicative(Property)), concaveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)).
+typeDetect(Property, (VI1,VF1), (VI2,VF2), (B1,B2), _) :-
+    other(Property), otherConflict(Property, (VI1,VF1), (VI2,VF2), (B1,B2)).
 
-conflict((PId1,PId2), _, Solution) :- % other
-    propertyExpectation(PId1, I, Property, B1, L1, _, _, VI1, VF1),
-    propertyExpectation(PId2, I, Property, B2, L2, _, _, VI2, VF2),
-    dif(PId1, PId2), other(Property), otherConflict(Property, (VI1,VF1), (VI2,VF2), (B1,B2)),
-    once(solution(Property, (L1,L2), (PId1,PId2), Solution)).
-conflict((PId1,PId2), _, Solution) :- % other
-    intent(I1, SH1, _, T1), intent(I2, infrPr, _, T2), dif(SH1, infrPr),
-    propertyExpectation(PId1, I1, Property, B1, L1, _, _, VI1, VF1),
-    propertyExpectation(PId2, I2, Property, B2, UP, _, _, VI2, VF2),
-    user(SH1, UP), dif(PId1, PId2), other(Property), 
-    otherConflict(Property, (VI1,VF1), (VI2,VF2), (B1,B2)),
-    once(solutionInfrPr(Property, L1, UP, V1, (PId1,PId2), Solution)).
+conflict(PIds, Chain, Solution) :-
+    intraDetect(PIds, Chain, Boundaries, Levels, Values, VF1, VF2),
+    typeDetect(Property, VF1, VF2, Boundaries, Values),
+    once(solution(Property, Levels, PIds, Solution)).
+conflict(PIds, Chain, Solution) :-
+    interDetect(PIds, Chain, Boundaries, Levels, Values, VF1, VF2),
+    typeDetect(Property, VF1, VF2, Boundaries, Values),
+    once(solutionInfrPr(Property, Levels, V1, (PId1,PId2), Solution)).
 
 % --- Specific numeric conflicts ---
 
@@ -74,7 +60,7 @@ conflict((PId1, PId2), _, Solution) :- % one changing property hw is too large
     propertyExpectation(PId1, I1, P, _, _, _),
     propertyExpectation(PId2, I2, totChainHW, _, UP, V, _, _, _), user(SH1, UP), 
     changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
-    once(solutionInfrPr(totChainHW, hard, UP, V1, (PId1,PId2), Solution)).
+    once(solutionInfrPr(totChainHW, (hard,UP), V1, (PId1,PId2), Solution)).
 
 % totChainHW 2
 conflict((PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
@@ -100,7 +86,7 @@ conflict((PId1, PId2), Chain, Solution) :- % there exists a vnf
     propertyExpectation(PId1, I1, chainAvailability, _, L1, V1, _, VI, VF),
     propertyExpectation(PId2, I2, vnfAvailability, _, UP, V2, _, VNF, _),
     user(SH1, UP), subChain(VI, VF, Chain, SubChain), member(VNF, SubChain), V1 > V2,
-    once(solutionInfrPr(availability, L1, UP, V1, (PId1,PId2), Solution)).
+    once(solutionInfrPr(availability, (L1,UP), V1, (PId1,PId2), Solution)).
 
 % CONFLICTING BOUNDS 
 additiveConflict(C, (VI1,VF1), (VI2,VF2), (greater, lower), (V1,V2)) :- subpath(C, VI1, VF1, VI2, VF2), V1 > V2.
@@ -146,10 +132,10 @@ solution(_, (soft, soft), (PId1, PId2), intra(remove, [PId1, PId2])). % remove b
 
 % --- inter-intent solutions ---
 % if gold, forcedCapWarning
-solutionInfrPr(Property, hard, gold, V, PId, inter(forcedCapWarning, Cap, PId)) :- cap(Property, gold, Cap).
+solutionInfrPr(Property, (hard,gold), V, PId, inter(forcedCapWarning, Cap, PId)) :- cap(Property, gold, Cap).
 
 % if less than gold, upgradeTo
-solutionInfrPr(Property, hard, _, V, PId, inter(upgradeTo, MinLevel, PId)) :- upgradeTo(Property, V, MinLevel).
+solutionInfrPr(Property, (hard, _), V, PId, inter(upgradeTo, MinLevel, PId)) :- upgradeTo(Property, V, MinLevel).
 
 % forcedCap if soft
-solutionInfrPr(Property, soft, UP, _, PId, inter(forcedCap, Cap, PId)) :- cap(Property, UP, Cap).
+solutionInfrPr(Property, (soft, L2), _, PId, inter(forcedCap, Cap, PId)) :- cap(Property, L2, Cap).
