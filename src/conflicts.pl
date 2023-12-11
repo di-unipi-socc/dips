@@ -2,9 +2,8 @@
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 
 % Detection
-conflictsDetection(Chain, ConflictsAndSolutions) :-
-    findall((C,S), conflict(C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions),
-    write('Conflicts: '), writeln(ConflictsAndSolutions),
+conflictsDetection(IntentId, Chain, ConflictsAndSolutions) :-
+    findall((C,S), conflict(IntentId, C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts),
     handleUnfeasibleConflicts(UnfeasibleConflicts).
 
@@ -16,7 +15,7 @@ conflictsResolution([], NCP, NCP).
 % TODO: actions to add: forcedCap, upgradeTo, forceCapWarning
 
 handleUnfeasibleConflicts(UnfeasibleConflicts) :- 
-dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts), fail.
+    dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts), fail.
 handleUnfeasibleConflicts([]).
 
 % --- General "intra"-property numeric conflicts ---
@@ -50,40 +49,39 @@ conflict(PIds, Chain, Solution) :-
 % --- Specific numeric conflicts ---
 
 % totChainHW 1
-conflict((PId1, PId2), _, Solution) :- % one changing property hw is too large
-    intent(I, SH1, U, _), dif(SH1, infrPr),
+conflict(I, (PId1, PId2), _, Solution) :- % one changing property hw is too large
+    intent(I, _, U, _),
     propertyExpectation(PId1, I, P, _, _, _),
     propertyExpectation(PId2, I, totChainHW, _, L, V, _, _, _),
     changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
     once(intraSolution(totChainHW, (L, hard), (PId1,PId2), Solution)).
-conflict((PId1, PId2), _, Solution) :- % one changing property hw is too large
-    intent(I1, SH1, U, _), intent(I2, infrPr, _, _), dif(SH1, infrPr),
+conflict(I1, (PId1, PId2), _, Solution) :- % one changing property hw is too large
+intent(I1, SH1, U, _), intent(I2, infrPr, _, _),
     propertyExpectation(PId1, I1, P, _, _, _),
     propertyExpectation(PId2, I2, totChainHW, _, UP, V, _, _, _), user(SH1, UP), 
     changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
-    once(interSolution(totChainHW, (hard,UP), HWReqs, (PId1,PId2), Solution)).
+    once(interSolution(totChainHW, (hard, UP), HWReqs, (PId1,PId2), Solution)).
 
 % totChainHW 2
-conflict((PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
-    intent(I1, SH1, U, _), dif(SH1, infrPr),
+conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
+    intent(I1, _, U, _),
     propertyExpectation(PId1, I1, totChainHW, _, L, V, _, _, _),
     findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V,
     once(intraSolution(totChainHW, (L, hard), (PId1, tooMuchHW), Solution)).
-conflict((PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
-    intent(I1, SH1, U, _), intent(I2, infrPr, _, _), dif(I1,I2), dif(SH1, infrPr), user(SH1, UP),
+conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
+    intent(I1, SH1, U, _), intent(I2, infrPr, _, _), user(SH1, UP),
     propertyExpectation(PId1, I2, totChainHW, _, UP, V, _, _, _),
     findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, 
     once(interSolution(totChainHW, (UP, hard), TotHW, (PId1, tooMuchHW), Solution)). 
 
 % availability
-conflict((PId1, PId2), Chain, Solution) :- % there exists a vnf 
-    intent(I, SH1, _, _), dif(SH1, infrPr),
+conflict(I, (PId1, PId2), Chain, Solution) :- % there exists a vnf 
     propertyExpectation(PId1, I, chainAvailability, _, L1, V1, _, VI, VF),
     propertyExpectation(PId2, I, vnfAvailability, _, L2, V2, _, VNF, _),
     subChain(VI, VF, Chain, SubChain), member(VNF, SubChain), V1 > V2,
     once(intraSolution(availability, (L1,L2), (PId1,PId2), Solution)).
-conflict((PId1, PId2), Chain, Solution) :- % there exists a vnf 
-    intent(I1, SH1, _, _), intent(I2, infrPr, _, _), dif(SH1, infrPr),
+conflict(I1, (PId1, PId2), Chain, Solution) :- % there exists a vnf 
+    intent(I1, SH1, _, _), intent(I2, infrPr, _, _),
     propertyExpectation(PId1, I1, chainAvailability, _, L1, V1, _, VI, VF),
     propertyExpectation(PId2, I2, vnfAvailability, _, UP, V2, _, VNF, _),
     user(SH1, UP), subChain(VI, VF, Chain, SubChain), member(VNF, SubChain), V1 > V2,
@@ -134,9 +132,7 @@ intraSolution(_, (soft, soft), (PId1, PId2), intra(remove, [PId1, PId2])). % rem
 % --- inter-intent solutions ---
 % if gold, forcedCapWarning
 interSolution(Property, (hard, gold), _, PId, inter(forcedCapWarning, Cap, PId)) :- cap(Property, gold, Cap).
-
 % if less than gold, upgradeTo
 interSolution(Property, (hard, _), V, PId, inter(upgradeTo, MinLevel, PId)) :- upgradeTo(Property, V, MinLevel).
-
 % forcedCap if soft
 interSolution(Property, (soft, L2), _, PId, inter(forcedCap, Cap, PId)) :- cap(Property, L2, Cap).

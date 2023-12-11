@@ -7,7 +7,7 @@
 
 multidips(Output) :- findall((IntentId, Targets), dips(IntentId, Targets), Output).
 dips(IntentId, Targets) :- 
-    intent(IntentId, _, _, _), 
+    intent(IntentId, Stakeholder, _, _), dif(Stakeholder, infrPr),
     findall(T, delivery(IntentId, T), Ts), sort(Ts, Targets).
 
 delivery(IntentId, (L, Placement, Unsatisfied)) :- 
@@ -22,7 +22,7 @@ modelling(IntentId, DimensionedChain) :-
     dimensionedChain(CompletedChain, NUsers, DimensionedChain).
 
 conflictDetectionAndResolution(IntentId, Chain, FilteredNCP) :-
-    conflictsDetection(Chain, ConflictsAndSolutions), % if any unfeasible conflict, fail
+    conflictsDetection(IntentId, Chain, ConflictsAndSolutions), % if any unfeasible conflict, fail
     findall(P, propertyExpectation(P, IntentId, _,_,_,_,_,_,_), NCP),
     conflictsResolution(ConflictsAndSolutions, NCP, FilteredNCP).
 
