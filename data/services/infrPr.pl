@@ -28,4 +28,4 @@ cap(Property, Level, Cap) :- propertyExpectation(_, _, Property, _, Level, Cap, 
 upgradeTo(Property, ReqValue, Level) :- 
     propertyExpectation(_, _, Property, _, Level, Cap, _, _, _), 
     Cap >= ReqValue, !.
-upgradeTo(Property, _, gold).
+upgradeTo(_, _, gold).
