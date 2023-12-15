@@ -5,30 +5,51 @@
 conflictsDetection(IntentId, Chain, ConflictsAndSolutions) :-
     findall((C,S), conflict(IntentId, C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts),
-    handleUnfeasibleConflicts(UnfeasibleConflicts).
+    findall(C, member((C, inter(upgradeTo, _, _)), ConflictsAndSolutions), UpgradeToConflicts),
+    checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts).
 
 % Resolution (based on action)
-conflictsResolution([((_,_),intra(remove,L))|Cs], NCP, FNCP) :- subtract(NCP, L, TmpNCP), conflictsResolution(Cs, TmpNCP, FNCP).
-conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :- dif(Op, remove), conflictsResolution(Cs, NCP, FNCP).
+% remove property
+conflictsResolution([((_,_),intra(remove,PIds))|Cs], NCP, FNCP) :- subtract(NCP, PIds, TmpNCP), conflictsResolution(Cs, TmpNCP, FNCP).
+% retract property and assert with cap forced by infra provider
+conflictsResolution([((_,_),inter(Action,Cap,PId))|Cs], NCP, FNCP) :- 
+    (Action = forcedCap; Action = forcedCapWarning),
+    retract(propertyExpectation(PId, IntentId, Property, Bound, Level, _, Unit, From, To)),
+    assertz(propertyExpectation(PId, IntentId, Property, Bound, Level, Cap, Unit, From, To)),
+    conflictsResolution(Cs, NCP, FNCP).
+
+% conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :- dif(Op, remove), conflictsResolution(Cs, NCP, FNCP).
 conflictsResolution([], NCP, NCP).
 
 % TODO: actions to add: forcedCap, upgradeTo, forceCapWarning
 
+handleUpgradeToConflicts(UpgradeToConflicts) :- 
+    dif(UpgradeToConflicts, []), 
+    findall(L, member((_, inter(upgradeTo, L, _)), UpgradeToConflicts), Levels), listMaxLevel(Levels, MaxLevel),
+    write('Cannot satisfy the following: '), writeln(UpgradeToConflicts),
+    write('Upgrade to level '), writeln(MaxLevel).
+handleUpgradeToConflicts([]).
+
 handleUnfeasibleConflicts(UnfeasibleConflicts) :- 
-    dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts), fail.
-handleUnfeasibleConflicts([]).
+    dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts).
+handleUnfeasibleConflicts([], []).
+
+checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts) :-
+    handleUpgradeToConflicts(UpgradeToConflicts),
+    handleUnfeasibleConflicts(UnfeasibleConflicts),
+    ((dif(UnfeasibleConflicts, []); dif(UpgradeToConflicts, [])), halt; true).
 
 % --- General "intra"-property numeric conflicts ---
-intraDetect((PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
+intraDetect(I, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
     dif(PId1, PId2).
 
-interDetect((PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
-    intent(I1, SH1, _, _), intent(I2, infrPr, _, _), dif(SH1, infrPr),
-    propertyExpectation(PId1, I1, Property, B1, L1, V1, _, VI1, VF1),
+interDetect(I, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
+    intent(I, SH, _, _), intent(I2, infrPr, _, _), dif(SH, infrPr),
+    propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I2, Property, B2, L2, V2, _, VI2, VF2),
-    dif(PId1, PId2), user(SH1, L2).
+    dif(PId1, PId2), user(SH, L2).
 
 typeDetect(Property, Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)) :-
     additive(Property), additiveConflict(Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)).
@@ -37,12 +58,12 @@ typeDetect(Property, Chain, (VI1,VF1), (VI2,VF2), (B1,B2), (V1,V2)) :-
 typeDetect(Property, Chain, (VI1,VF1), (VI2,VF2), (B1,B2), _) :-
     other(Property), otherConflict(Property, Chain, (VI1,VF1), (VI2,VF2), (B1,B2)).
 
-conflict(PIds, Chain, Solution) :-
-    intraDetect(PIds, Boundaries, Levels, Values, VF1, VF2),
+conflict(I, PIds, Chain, Solution) :-
+    intraDetect(I, PIds, Boundaries, Levels, Values, VF1, VF2),
     typeDetect(Property, Chain, VF1, VF2, Boundaries, Values),
     once(intraSolution(Property, Levels, PIds, Solution)).
-conflict(PIds, Chain, Solution) :-
-    interDetect(PIds, Boundaries, Levels, (V1,V2), VF1, VF2),
+conflict(I, PIds, Chain, Solution) :-
+    interDetect(I, PIds, Boundaries, Levels, (V1,V2), VF1, VF2),
     typeDetect(Property, Chain, VF1, VF2, Boundaries, (V1,V2)),
     once(interSolution(Property, Levels, V1, PIds, Solution)).
 
