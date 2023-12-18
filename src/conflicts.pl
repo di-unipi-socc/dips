@@ -90,7 +90,7 @@ conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too larg
 conflict(I1, (tooMuchHW, PId1), Chain, Solution) :- % whole chain hw is too large
     intent(I1, SH1, U, _), intent(I2, infrPr, _, _), user(SH1, UP),
     propertyExpectation(PId1, I2, totChainHW, _, UP, V, _, _, _),
-    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, writeln(TotHW), writeln(V),
+    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V,
     once(interSolution(totChainHW, (hard, UP), TotHW, Solution)). 
 
 % availability
