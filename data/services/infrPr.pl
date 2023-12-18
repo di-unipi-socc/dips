@@ -18,8 +18,8 @@ propertyExpectation(hwCapSilver, infraIntent, totChainHW, lower, silver, 100, _,
 propertyExpectation(hwCapGold, infraIntent, totChainHW, lower, gold, 200, _, _, _).
 
 propertyExpectation(latencyBronze, infraIntent, latency, lower, bronze, 100, ms, begin, end).
-propertyExpectation(latencySilver, infraIntent, latency, lower, silver, 50, ms, begin, end).
-propertyExpectation(latencyGold, infraIntent, latency, lower, gold, 10, ms, begin, end).
+propertyExpectation(latencySilver, infraIntent, latency, lower, silver, 10, ms, begin, end).
+propertyExpectation(latencyGold, infraIntent, latency, lower, gold, 2, ms, begin, end).
 
 gt(gold, silver).
 gt(silver, bronze).
