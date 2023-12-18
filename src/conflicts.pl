@@ -1,11 +1,11 @@
-:- ['utils.pl', 'properties.pl'].
+:- ['properties.pl'].
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 
 % Detection
 conflictsDetection(IntentId, Chain, ConflictsAndSolutions) :-
     findall((C,S), conflict(IntentId, C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts),
-    findall(C, member((C, inter(upgradeTo, _, _)), ConflictsAndSolutions), UpgradeToConflicts),
+    findall((L,C1), member((C1, inter(upgradeTo, L)), ConflictsAndSolutions), UpgradeToConflicts),
     checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts).
 
 % Resolution (based on action)
@@ -17,17 +17,15 @@ conflictsResolution([((_,_),inter(Action,Cap,PId))|Cs], NCP, FNCP) :-
     retract(propertyExpectation(PId, IntentId, Property, Bound, Level, _, Unit, From, To)),
     assertz(propertyExpectation(PId, IntentId, Property, Bound, Level, Cap, Unit, From, To)),
     conflictsResolution(Cs, NCP, FNCP).
-
-% conflictsResolution([((_,_),Op,_)|Cs], NCP, FNCP) :- dif(Op, remove), conflictsResolution(Cs, NCP, FNCP).
 conflictsResolution([], NCP, NCP).
-
-% TODO: actions to add: forcedCap, upgradeTo, forceCapWarning
 
 handleUpgradeToConflicts(UpgradeToConflicts) :- 
     dif(UpgradeToConflicts, []), 
-    findall(L, member((_, inter(upgradeTo, L, _)), UpgradeToConflicts), Levels), listMaxLevel(Levels, MaxLevel),
-    write('Cannot satisfy the following: '), writeln(UpgradeToConflicts),
-    write('Upgrade to level '), writeln(MaxLevel).
+    findall(L, member((L,_), UpgradeToConflicts), Levels),
+    findall(P, member((_,P,_), UpgradeToConflicts), PIds),
+    listMaxLevel(Levels, MaxLevel),
+    write('Cannot satisfy the following: '), write(PIds),
+    write(' --> Upgrade to '), writeln(MaxLevel).
 handleUpgradeToConflicts([]).
 
 handleUnfeasibleConflicts(UnfeasibleConflicts) :- 
@@ -37,15 +35,15 @@ handleUnfeasibleConflicts([], []).
 checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts) :-
     handleUpgradeToConflicts(UpgradeToConflicts),
     handleUnfeasibleConflicts(UnfeasibleConflicts),
-    ((dif(UnfeasibleConflicts, []); dif(UpgradeToConflicts, [])), halt; true).
+    ((dif(UnfeasibleConflicts, []); dif(UpgradeToConflicts, [])), fail; true).
 
 % --- General "intra"-property numeric conflicts ---
-intraDetect(I, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
+intraDetect(I, Property, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I, Property, B2, L2, V2, _, VI2, VF2),
     dif(PId1, PId2).
 
-interDetect(I, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
+interDetect(I, Property, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
     intent(I, SH, _, _), intent(I2, infrPr, _, _), dif(SH, infrPr),
     propertyExpectation(PId1, I, Property, B1, L1, V1, _, VI1, VF1),
     propertyExpectation(PId2, I2, Property, B2, L2, V2, _, VI2, VF2),
@@ -59,13 +57,13 @@ typeDetect(Property, Chain, (VI1,VF1), (VI2,VF2), (B1,B2), _) :-
     other(Property), otherConflict(Property, Chain, (VI1,VF1), (VI2,VF2), (B1,B2)).
 
 conflict(I, PIds, Chain, Solution) :-
-    intraDetect(I, PIds, Boundaries, Levels, Values, VF1, VF2),
+    intraDetect(I, Property, PIds, Boundaries, Levels, Values, VF1, VF2),
     typeDetect(Property, Chain, VF1, VF2, Boundaries, Values),
     once(intraSolution(Property, Levels, PIds, Solution)).
 conflict(I, PIds, Chain, Solution) :-
-    interDetect(I, PIds, Boundaries, Levels, (V1,V2), VF1, VF2),
+    interDetect(I, Property, PIds, Boundaries, Levels, (V1,V2), VF1, VF2),
     typeDetect(Property, Chain, VF1, VF2, Boundaries, (V1,V2)),
-    once(interSolution(Property, Levels, V1, PIds, Solution)).
+    once(interSolution(Property, Levels, V1, Solution)).
 
 % --- Specific numeric conflicts ---
 
@@ -77,11 +75,11 @@ conflict(I, (PId1, PId2), _, Solution) :- % one changing property hw is too larg
     changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
     once(intraSolution(totChainHW, (L, hard), (PId1,PId2), Solution)).
 conflict(I1, (PId1, PId2), _, Solution) :- % one changing property hw is too large
-intent(I1, SH1, U, _), intent(I2, infrPr, _, _),
+    intent(I1, SH1, U, _), intent(I2, infrPr, _, _),
     propertyExpectation(PId1, I1, P, _, _, _),
     propertyExpectation(PId2, I2, totChainHW, _, UP, V, _, _, _), user(SH1, UP), 
     changingProperty(P, VF), vnfXUser(VF, _, (Low, High), HWReqs), between(Low, High, U), HWReqs >= V,
-    once(interSolution(totChainHW, (hard, UP), HWReqs, (PId1,PId2), Solution)).
+    once(interSolution(totChainHW, (hard, UP), HWReqs, Solution)).
 
 % totChainHW 2
 conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
@@ -89,24 +87,24 @@ conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too larg
     propertyExpectation(PId1, I1, totChainHW, _, L, V, _, _, _),
     findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V,
     once(intraSolution(totChainHW, (L, hard), (PId1, tooMuchHW), Solution)).
-conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
+conflict(I1, (tooMuchHW, PId1), Chain, Solution) :- % whole chain hw is too large
     intent(I1, SH1, U, _), intent(I2, infrPr, _, _), user(SH1, UP),
     propertyExpectation(PId1, I2, totChainHW, _, UP, V, _, _, _),
-    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, 
-    once(interSolution(totChainHW, (UP, hard), TotHW, (PId1, tooMuchHW), Solution)). 
+    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, writeln(TotHW), writeln(V),
+    once(interSolution(totChainHW, (hard, UP), TotHW, Solution)). 
 
 % availability
 conflict(I, (PId1, PId2), Chain, Solution) :- % there exists a vnf 
     propertyExpectation(PId1, I, chainAvailability, _, L1, V1, _, VI, VF),
     propertyExpectation(PId2, I, vnfAvailability, _, L2, V2, _, VNF, _),
     subChain(VI, VF, Chain, SubChain), member(VNF, SubChain), V1 > V2,
-    once(intraSolution(availability, (L1,L2), (PId1,PId2), Solution)).
+    once(intraSolution(chainAvailability, (L1,L2), (PId1,PId2), Solution)).
 conflict(I1, (PId1, PId2), Chain, Solution) :- % there exists a vnf 
     intent(I1, SH1, _, _), intent(I2, infrPr, _, _),
     propertyExpectation(PId1, I1, chainAvailability, _, L1, V1, _, VI, VF),
     propertyExpectation(PId2, I2, vnfAvailability, _, UP, V2, _, VNF, _),
     user(SH1, UP), subChain(VI, VF, Chain, SubChain), member(VNF, SubChain), V1 > V2,
-    once(interSolution(availability, (L1,UP), V1, (PId1,PId2), Solution)).
+    once(interSolution(chainAvailability, (L1,UP), V1, Solution)).
 
 % CONFLICTING BOUNDS 
 additiveConflict(C, (VI1,VF1), (VI2,VF2), (greater, lower), (V1,V2)) :- subpath(C, VI1, VF1, VI2, VF2), V1 > V2.
@@ -152,8 +150,8 @@ intraSolution(_, (soft, soft), (PId1, PId2), intra(remove, [PId1, PId2])). % rem
 
 % --- inter-intent solutions ---
 % if gold, forcedCapWarning
-interSolution(Property, (hard, gold), _, PId, inter(forcedCapWarning, Cap, PId)) :- cap(Property, gold, Cap).
+interSolution(Property, (hard, gold), _, inter(forcedCapWarning, Cap)) :- cap(Property, gold, Cap).
 % if less than gold, upgradeTo
-interSolution(Property, (hard, _), V, PId, inter(upgradeTo, MinLevel, PId)) :- upgradeTo(Property, V, MinLevel).
-% forcedCap if soft
-interSolution(Property, (soft, L2), _, PId, inter(forcedCap, Cap, PId)) :- cap(Property, L2, Cap).
+interSolution(Property, (hard, _), V, inter(upgradeTo, MinLevel)) :- upgradeTo(Property, V, MinLevel).
+% if soft, forcedCap
+interSolution(Property, (soft, L2), _, inter(forcedCap, Cap)) :- cap(Property, L2, Cap).
