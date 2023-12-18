@@ -13,12 +13,12 @@ propertyExpectation(aff2, rsIntent, affinity, same, hard, _, _, renderVF, storag
 
 propertyExpectation(lat1, rsIntent, latency, lower, soft, 40, ms, syncVF, renderVF).
 propertyExpectation(lat2, rsIntent, latency, lower, hard, 20, ms, renderVF, storageVF).
-propertyExpectation(hw1, rsIntent, totChainHW, lower, hard, 150, gb, _, _).
+propertyExpectation(hw1, rsIntent, totChainHW, lower, hard, 100, gb, _, _).
 
 propertyExpectation(av1, rsIntent, chainAvailability, greater, hard, 0.999, _, begin, end).
 
-vnf(uiVF, edge, 5).
-vnf(syncVF, edge, 8).
+vnf(uiVF, edge, 2).
+vnf(syncVF, edge, 5).
 vnf(renderVF, edge, 10).
 vnf(storageVF, cloud, 8).
 
