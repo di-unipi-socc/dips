@@ -26,7 +26,7 @@ vnfXUser(uiVF, s, (1, inf), 2).
 vnfXUser(syncVF, s, (1, 2000), 1).
 vnfXUser(syncVF, m, (2001, 5000), 2).
 vnfXUser(syncVF, l, (5001, inf), 5).
-vnfXUser(renderVF, s, (1, 2000), 8).
+vnfXUser(renderVF, s, (1, 2000), 10).
 vnfXUser(renderVF, m, (2001, 5000), 25).
 vnfXUser(renderVF, l, (5001, inf), 50).
-vnfXUser(storageVF, l, (1, inf), 80).
+vnfXUser(storageVF, l, (1, inf), 85).
