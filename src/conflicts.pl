@@ -3,11 +3,19 @@
 
 % Detection
 conflictsDetection(IntentId, Chain, ConflictsAndSolutions) :-
-    findall((C,S), conflict(IntentId, C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions),
-    findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts),
-    findall((L,C1), member((C1, inter(upgradeTo, L)), ConflictsAndSolutions), UpgradeToConflicts),
-    % writeln(ConflictsAndSolutions),
-    checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts).
+    allConflicts(IntentId, Chain, ConflictsAndSolutions),
+    intraIntentConflicts(ConflictsAndSolutions, IntraIntentConflicts),
+    interIntentConflicts(ConflictsAndSolutions, InterIntentConflicts),
+    checkFeasibility(IntraIntentConflicts, InterIntentConflicts).
+
+allConflicts(IntentId, Chain, ConflictsAndSolutions) :-
+    findall((C,S), conflict(IntentId, C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions).
+
+intraIntentConflicts(ConflictsAndSolutions, IntraIntentConflicts) :-
+    findall(C, member((C, unfeasible), ConflictsAndSolutions), IntraIntentConflicts).
+
+interIntentConflicts(ConflictsAndSolutions, InterIntentConflicts) :-
+    findall((L,C1), member((C1, inter(upgradeTo, L)), ConflictsAndSolutions), InterIntentConflicts).
 
 % Resolution (based on action)
 % remove property
@@ -20,23 +28,23 @@ conflictsResolution([((_,_),inter(Action,Cap,PId))|Cs], NCP, FNCP) :-
     conflictsResolution(Cs, NCP, FNCP).
 conflictsResolution([], NCP, NCP).
 
-handleUpgradeToConflicts(UpgradeToConflicts) :- 
-    dif(UpgradeToConflicts, []), 
-    findall(L, member((L,_), UpgradeToConflicts), Levels),
-    findall(P, member((_,P,_), UpgradeToConflicts), PIds),
+handleInterIntentConflicts(InterIntentConflicts) :- 
+    dif(InterIntentConflicts, []), 
+    findall(L, member((L,_), InterIntentConflicts), Levels),
+    findall(P, member((_,P,_), InterIntentConflicts), PIds),
     listMaxLevel(Levels, MaxLevel),
     write('Inter-intent conflicts: '), write(PIds),
     write(' --> Upgrade to '), writeln(MaxLevel).
-handleUpgradeToConflicts([]).
+handleInterIntentConflicts([]).
 
-handleUnfeasibleConflicts(UnfeasibleConflicts) :- 
-    dif(UnfeasibleConflicts, []), write('Unfeasible conflicts: '), writeln(UnfeasibleConflicts).
-handleUnfeasibleConflicts([], []).
+handleIntraIntentConflicts(IntraIntentConflicts) :- 
+    dif(IntraIntentConflicts, []), write('Intra-intent conflicts: '), writeln(IntraIntentConflicts).
+handleIntraIntentConflicts([], []).
 
-checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts) :-
-    handleUpgradeToConflicts(UpgradeToConflicts),
-    handleUnfeasibleConflicts(UnfeasibleConflicts),
-    ((dif(UnfeasibleConflicts, []); dif(UpgradeToConflicts, [])), fail; true).
+checkFeasibility(IntraIntentConflicts, InterIntentConflicts) :-
+    handleInterIntentConflicts(InterIntentConflicts),
+    handleIntraIntentConflicts(IntraIntentConflicts),
+    ((dif(IntraIntentConflicts, []); dif(InterIntentConflicts, [])), fail; true).
 
 % --- General "intra"-property numeric conflicts ---
 intraDetect(I, Property, (PId1,PId2), (B1,B2), (L1,L2), (V1,V2), (VI1,VF1), (VI2,VF2)) :-
