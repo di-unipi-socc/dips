@@ -86,12 +86,12 @@ conflict(I1, (PId1, PId2), _, Solution) :- % one changing property hw is too lar
 conflict(I1, (PId1, tooMuchHW), Chain, Solution) :- % whole chain hw is too large
     intent(I1, _, U, _),
     propertyExpectation(PId1, I1, totChainHW, _, L, V, _, _, _),
-    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V,
+    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, write(TotHW), writeln(V),
     once(intraSolution(totChainHW, (L, hard), (PId1, tooMuchHW), Solution)).
 conflict(I1, (tooMuchHW, PId1), Chain, Solution) :- % whole chain hw is too large
     intent(I1, SH1, U, _), intent(I2, infrPr, _, _), user(SH1, UP),
     propertyExpectation(PId1, I2, totChainHW, _, UP, V, _, _, _),
-    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V,
+    findall(HW, dimensionedHW(Chain, U, HW), HWs), sum_list(HWs, TotHW), TotHW > V, write(TotHW), writeln(V),
     once(interSolution(totChainHW, (hard, UP), TotHW, Solution)). 
 
 % availability
