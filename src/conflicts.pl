@@ -6,6 +6,7 @@ conflictsDetection(IntentId, Chain, ConflictsAndSolutions) :-
     findall((C,S), conflict(IntentId, C, Chain, S), CSs), sort(CSs, ConflictsAndSolutions),
     findall(C, member((C, unfeasible), ConflictsAndSolutions), UnfeasibleConflicts),
     findall((L,C1), member((C1, inter(upgradeTo, L)), ConflictsAndSolutions), UpgradeToConflicts),
+    % writeln(ConflictsAndSolutions),
     checkFeasibility(UnfeasibleConflicts, UpgradeToConflicts).
 
 % Resolution (based on action)
@@ -24,7 +25,7 @@ handleUpgradeToConflicts(UpgradeToConflicts) :-
     findall(L, member((L,_), UpgradeToConflicts), Levels),
     findall(P, member((_,P,_), UpgradeToConflicts), PIds),
     listMaxLevel(Levels, MaxLevel),
-    write('Cannot satisfy the following: '), write(PIds),
+    write('Inter-intent conflicts: '), write(PIds),
     write(' --> Upgrade to '), writeln(MaxLevel).
 handleUpgradeToConflicts([]).
 
