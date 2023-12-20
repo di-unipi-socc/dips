@@ -13,26 +13,6 @@
 *DIPS* is a Prolog tool that exploits a declarative methodology for modelling and processing VNF-based service provisioning intents. 
 DIPS enables users (i.e. application providers) to specify their desired VNF chain requirements in a high-level language that captures their intent, such as the type of service to be provided, possible location constraints (e.g. at the _edge_), Quality of Service (QoS) (e.g. _latency_ and _bandwidth_), but also non-functional requirements (e.g. _privacy_ and _logging_). DIPS leverages Prolog inference to translate intents into provisioning specifications.
 
-## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
-</picture>
-
-```bash
-.
-├── dips.pl
-└── src
-    ├── checks.pl
-    ├── data.pl
-    └── utils.pl
-```
-
- - [`dips.pl`](dips.pl) contains the main logic of the reasoner.
-
- - [`src/data.pl`](src/data.pl) contains all the _property expectations_ an intent is made of and the description of each VNF to be placed.
-
- - [`src/properties.pl`](src/properties.pl) contains the predicates that check the intent _properties_, both at the assembly (associated to _changing properties_) and placement phases (_non-changing properties_).
-
- - [`src/utils.pl`](src/utils.pl) contains a set of useful predicates to _(i)_ assemble the VNF chain, and _(ii)_ compute QoS metrics during the placement phase.
-
 
  ## How To &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2666/2666505.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2666/2666469.png">
 </picture>
@@ -46,10 +26,11 @@ DIPS enables users (i.e. application providers) to specify their desired VNF cha
 
 3. Execute the main query:
     ```prolog
-    :- dips(StakeHolder, IntentId, NumberOfUsers, Output).
+    :- dips(IntentId, Output).
     ```
 
-    where `StakeHolder` is the unique ID of the stakeholder who requested the intent, `IntentId` is the unique ID of the intent to be processed, `NumberOfUsers` is the number of users that the VNF chain will serve, and `Output` is the output of the reasoner.
+    where `IntentId` is the unique ID of the intent to be processed, and `Output` is the output of the reasoner.
+    Be sure to set the correct NumberOfUsers that the intent will serve in the `intent/4`fact, located in the `data/services/<service_name>.pl` file.
 
     `Output` is a list of tuples, where each tuple is of the form `(L, Placement, UP)`:
     - `L` is the number of unsatisfied properties (i.e. the number of properties that do not meet expectations) 
