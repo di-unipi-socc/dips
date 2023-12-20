@@ -11,7 +11,6 @@
 > IEEE 9th International Conference on Network Softwarization (NetSoft), 2023.
 
 *DIPS* is a Prolog tool that exploits a declarative methodology for modelling and processing VNF-based service provisioning intents. 
-
 DIPS enables users (i.e. application providers) to specify their desired VNF chain requirements in a high-level language that captures their intent, such as the type of service to be provided, possible location constraints (e.g. at the _edge_), Quality of Service (QoS) (e.g. _latency_ and _bandwidth_), but also non-functional requirements (e.g. _privacy_ and _logging_). DIPS leverages Prolog inference to translate intents into provisioning specifications.
 
 ## Files &nbsp;<picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn-icons-png.flaticon.com/512/2822/2822755.png"><img width="20" height="20" alt="files" src="https://cdn-icons-png.flaticon.com/512/2822/2822584.png"/>
@@ -40,7 +39,7 @@ DIPS enables users (i.e. application providers) to specify their desired VNF cha
 
 1. Download or clone this repository. Make sure you have [SWI-Prolog](https://www.swi-prolog.org/download/stable) installed.
 
-2. In the project folder, run the following command on the terminal to access the SWI-Prolog console and load the main file:
+2. In the project folder, run the following command on the command line, to access the SWI-Prolog console and load the main file:
     ```console 
     swipl dips.pl
     ```

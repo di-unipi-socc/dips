@@ -1,3 +1,5 @@
+:- ['allocation.pl'].
+
 minBW(_, From, To, BW) :- node(From,_,_), node(To,_,_), link(From, To, _, BW). % node - node
 minBW([on(_,_,N)|Zs], From, To, BW) :- node(From,_,_), \+ node(To,_,_),  link(From, N, _, TmpBW), minBW2(Zs, To, TmpBW, BW). % node - VNF
 minBW(P, From, To, BW) :- minBW(P, From, To, inf, BW). % VNF - node / VNF - VNF
@@ -40,7 +42,6 @@ addedFromTo([From|Zs], From, To, G, [G, From|NewZs]) :- addedFromTo2(Zs, To, G, 
 addedFromTo2([To|Zs], To, G, [To, G|Zs]).
 addedFromTo2([X|Zs], To, G, [X|NewZs]) :- dif(X,To), addedFromTo2(Zs, To, G, NewZs).
 
-
 addedBefore([Before|Zs], Before, G, [G, Before|Zs]) :- addedBefore(Zs, Before, G, Zs).
 addedBefore([X|Zs], Before, G, [X|NewZs]) :- dif(X,Before), addedBefore(Zs, Before, G, NewZs).
 addedBefore([], _, _, []).
@@ -48,3 +49,30 @@ addedBefore([], _, _, []).
 addedAfter([After|Zs], After, G, [After, G|Zs]) :- addedAfter(Zs, After, G, Zs).
 addedAfter([X|Zs], After, G, [X|NewZs]) :- dif(X,After), addedAfter(Zs, After, G, NewZs).
 addedAfter([], _, _, []).
+
+pathAvailability(_, _, _, _).
+
+distinctNodes(P, Ns) :- findall(N, member(on(_,_,N), P), Ms), sort(Ms, Ns).
+
+subChain(begin, end, Chain, Chain).
+subChain(From, To, Chain, Subchain) :- findall(VF, (member((VF,_,_),Chain)), CChain), subChain((From, To), CChain, Subchain).
+subChain((From, To), [V|Rest], Subchain) :- dif(From, V), subChain((From, To), Rest, Subchain).
+subChain((From, To), [From|Rest], [From|Subchain]) :- subChain2(To, Rest, Subchain).
+
+subChain2(To, [V|Rest], [V|Subchain]) :- dif(To, V), subChain2(To, Rest, Subchain).
+subChain2(To, [To|_], [To]).
+
+overlaps(Chain, VI1, VF1, VI2, VF2) :- 
+    subChain(VI1, VF1, Chain, S1), subChain(VI2, VF2, Chain, S2), overlaps(S1, S2).
+overlaps(S1,S2) :- append([_,[X,Y],_], S1), append([_,[X,Y],_],S2).
+
+subpath(Chain, VI1, VF1, VI2, VF2) :- 
+    subChain(VI1, VF1, Chain, S1), subChain(VI2, VF2, Chain, S2), subpath(S1, S2).
+subpath(S1, S2) :- length(S1, L1), length(S2, L2), L1 =< L2, append( [_, S1, _], S2 ).
+
+dimensionedHW(Chain, U, HWReqs) :- member((VF, _, D), Chain), vnfXUser(VF, D, (L, H), HWReqs), between(L, H, U).
+
+prod_list([], 0).
+prod_list(L, Product) :- dif(L, []), prod_list(L, 1, Product).
+prod_list([H|T], OldP, NewP) :- TmpP is OldP * H, prod_list(T, TmpP, NewP).
+prod_list([], P, P).
