@@ -22,7 +22,7 @@ link(From, To, FeatLat, FeatBw).
 
 intent(IId, infrPr, _, _).
 user(UserId, Priority).
-/* in property expectations for the infrastrcuture provider,
+/* in property expectations for the infrastrcuture provider's intent,
    levels are: gold, silver, bronze, as the user priorities in user/2 
  */
 propertyExpectation(PId, IId, Property, lower, Level, Value, _, _, _).
