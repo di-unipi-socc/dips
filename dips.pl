@@ -1,11 +1,10 @@
 :-['data/infrastructures/infr5.pl', 'data/services/all.pl'].
-:-['src/properties.pl', 'src/conflicts.pl'].
+:-['src/properties.pl', 'src/conflicts.pl', 'src/preprocessing.pl'].
 
 :- set_prolog_flag(answer_write_options,[max_depth(0), spacing(next_argument)]).
 :- set_prolog_flag(stack_limit, 64 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
-
-multidips(Output) :- findall((IntentId, Targets), dips(IntentId, Targets), Output).
+ 
 dips(IntentId, Targets) :- 
     intent(IntentId, Stakeholder, _, _), dif(Stakeholder, infrPr),
     findall(T, delivery(IntentId, T), Ts), sort(Ts, Targets).

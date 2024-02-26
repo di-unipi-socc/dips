@@ -1,6 +1,7 @@
-% node(Id, Type, HWCaps, Availability).
+% node(Id, Type, HWCaps).
 node(gateway, edge, 10).
-node(edge1, edge, 18).
+%node(edge1, edge, 18).
+node(edge1, edge, 11).
 node(edge2, edge, 25).
 node(cloud1, cloud, 100).
 node(cloud2, cloud, 150).
