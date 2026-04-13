@@ -1,4 +1,4 @@
-intent(rsIntent, renderAppOp, 1000, renderingService).
+intent(rsIntent, renderAppOp, 100, renderingService).
 
 target(renderingService, [uiVF, syncVF, renderVF, storageVF]).
 

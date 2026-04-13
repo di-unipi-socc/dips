@@ -21,12 +21,16 @@ interIntentConflicts(ConflictsAndSolutions, InterIntentConflicts) :-
 % remove property
 conflictsResolution([((_,_),intra(remove,PIds))|Cs], NCP, FNCP) :- subtract(NCP, PIds, TmpNCP), conflictsResolution(Cs, TmpNCP, FNCP).
 % retract property and assert with cap forced by infra provider
-conflictsResolution([((_,_),inter(Action,Cap,PId))|Cs], NCP, FNCP) :- 
+conflictsResolution([((PId,_),inter(Action,Cap))|Cs], NCP, FNCP) :-
     (Action = forcedCap; Action = forcedCapWarning),
-    retract(propertyExpectation(PId, IntentId, Property, Bound, Level, _, Unit, From, To)),
-    assertz(propertyExpectation(PId, IntentId, Property, Bound, Level, Cap, Unit, From, To)),
+    forceCap(PId, Cap),
     conflictsResolution(Cs, NCP, FNCP).
 conflictsResolution([], NCP, NCP).
+
+forceCap(PId, Cap) :-
+    retract(propertyExpectation(PId, IntentId, Property, Bound, Level, _, Unit, From, To)),
+    assertz(propertyExpectation(PId, IntentId, Property, Bound, Level, Cap, Unit, From, To)).
+forceCap(_, _).
 
 handleInterIntentConflicts(InterIntentConflicts) :- 
     dif(InterIntentConflicts, []), 
@@ -39,7 +43,7 @@ handleInterIntentConflicts([]).
 
 handleIntraIntentConflicts(IntraIntentConflicts) :- 
     dif(IntraIntentConflicts, []), write('Intra-intent conflicts: '), writeln(IntraIntentConflicts).
-handleIntraIntentConflicts([], []).
+handleIntraIntentConflicts([]).
 
 checkFeasibility(IntraIntentConflicts, InterIntentConflicts) :-
     handleInterIntentConflicts(InterIntentConflicts),

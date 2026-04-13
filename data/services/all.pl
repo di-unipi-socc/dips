@@ -8,6 +8,8 @@
 
 :-['./infrPr.pl'].
 :-['./renderingService.pl'].
+% :-['./streamingService.pl'].
+% :-['./gamingService.pl'].
 
 % vnf(Id, Affinity, ProcessingTime).
 vnf(encVF, edge, 2).

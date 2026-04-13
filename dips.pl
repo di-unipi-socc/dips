@@ -5,6 +5,9 @@
 :- set_prolog_flag(stack_limit, 64 000 000 000).
 :- set_prolog_flag(last_call_optimisation, true).
 
+:- dynamic propertyExpectation/9.
+:- dynamic propertyExpectation/6.
+
 multidips(Output) :- findall((IntentId, Targets), dips(IntentId, Targets), Output).
 dips(IntentId, Targets) :- 
     intent(IntentId, Stakeholder, _, _), dif(Stakeholder, infrPr),

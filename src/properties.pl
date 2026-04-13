@@ -36,7 +36,7 @@ value(avgHW, Placement, _, AvgHW) :- hwAllocation(Placement, AllocHW), avgAlloc(
 value(nodes, Placement, _, L) :- distinctNodes(Placement, Nodes), length(Nodes, L).
 
 respectBound(greater, Actual, Desired) :- Actual >= Desired.
-respectBound(smaller, Actual, Desired) :- Actual =< Desired.
+respectBound(lower, Actual, Desired) :- Actual =< Desired.
 respectBound(equal, Actual, Desired) :- Actual =:= Desired.
 
 checkProperty(PId, Placement, OldUP, OldUP) :-
