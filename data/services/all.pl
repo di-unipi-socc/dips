@@ -7,9 +7,9 @@
 :- multifile changingProperty/2.
 
 :-['./infrPr.pl'].
-:-['./renderingService.pl'].
+% :-['./renderingService.pl'].
 % :-['./streamingService.pl'].
-% :-['./gamingService.pl'].
+:-['./gamingService.pl'].
 
 % vnf(Id, Affinity, ProcessingTime).
 vnf(encVF, edge, 2).

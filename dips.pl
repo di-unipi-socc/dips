@@ -56,7 +56,7 @@ translation([(F, L, D)|VNFs], OldP, NewP) :-
     vnfXUser(F, D, _, HWReqs), node(N, L, HWCaps),  
     hwOK(N, HWReqs, HWCaps, OldP),
     translation(VNFs, [on(F, D, N)|OldP], NewP).
-translation([], P, P).
+translation([], RP, P) :- reverse(RP, P).
 
 hwOK(N, HWReqs, HWCaps, Placement) :- % hw resources are cumulative
     findall(HW, (member(on(VNF, V, N), Placement), vnfXUser(VNF, V, _, HW)), HWs), sumlist(HWs, HWSum),
